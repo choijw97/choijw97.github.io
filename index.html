@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monofolio | Designer Portfolio</title>
+    
+    <!-- [라이브러리 불러오기] -->
+    <!-- Tailwind CSS (스타일링) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons (아이콘) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- 폰트 (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- [스타일 설정] -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        background: '#0a0a0a',
+                        surface: '#171717',
+                        primary: '#ffffff',
+                        secondary: '#a3a3a3',
+                        accent: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0a0a0a; color: #ffffff; }
+        
+        /* 스크롤바 커스텀 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 애니메이션 */
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+  }
+}
+</script>
+</head>
+<body class="flex min-h-screen font-sans selection:bg-accent selection:text-white overflow-x-hidden">
+
+    <!-- [1. 모바일 메뉴 버튼] -->
+    <button id="mobile-menu-btn" class="fixed top-4 right-4 z-50 md:hidden p-2 bg-neutral-800 rounded-full text-white shadow-lg hover:bg-neutral-700 transition-colors">
+        <i data-lucide="menu"></i>
+    </button>
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm hidden transition-opacity"></div>
+
+    <!-- [2. 사이드바 (왼쪽 메뉴)] -->
+    <nav id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-neutral-800 transform -translate-x-full md:translate-x-0 md:static md:h-screen md:flex md:flex-col transition-transform duration-300 ease-in-out">
+        <div class="p-8 pb-4">
+            <h1 class="text-2xl font-bold tracking-tighter text-white mb-1">ALEX.DESIGN</h1>
+            <p class="text-xs text-secondary uppercase tracking-widest">Portfolio 2024</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1 no-scrollbar">
+            <!-- Work 메뉴 (아코디언) -->
+            <div>
+                <button onclick="toggleWorkMenu()" id="btn-work" class="w-full text-left py-2 px-4 rounded-md transition-colors duration-200 cursor-pointer text-white flex items-center justify-between group">
+                    <span class="font-medium" data-translate="menu_work">Work</span>
+                    <i id="work-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300"></i>
+                </button>
+                <div id="work-submenu" class="pl-4 space-y-1 overflow-hidden transition-all duration-300 max-h-56 opacity-100 mt-1">
+                    <button onclick="navigate('Work', 'All')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="All" data-translate="menu_all_projects">All Projects</button>
+                    <button onclick="navigate('Work', 'Speculative Design')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Speculative Design">Speculative Design</button>
+                    <button onclick="navigate('Work', 'Exhibition Design')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Exhibition Design">Exhibition Design</button>
+                    <button onclick="navigate('Work', 'Design Assay')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Design Assay">Design Assay</button>
+                    <button onclick="navigate('Work', 'Diagram Study')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Diagram Study">Diagram Study</button>
+                </div>
+            </div>
+
+            <!-- 기타 메뉴 -->
+            <div class="mt-4 space-y-1">
+                <button onclick="navigate('Study')" id="btn-study" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_study">Study</button>
+                <button onclick="navigate('About')" id="btn-about" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_about">About</button>
+                <button onclick="navigate('Contact')" id="btn-contact" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_contact">Contact</button>
+                <button onclick="navigate('Guestbook')" id="btn-guestbook" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_guestbook">Guestbook</button>
+            </div>
+        </div>
+
+        <!-- 하단: 언어 선택 및 소셜 -->
+        <div class="p-8 border-t border-neutral-800">
+            <div class="flex items-center space-x-3 mb-6 text-sm font-medium">
+                <button onclick="setLanguage('ko')" id="lang-ko" class="text-white transition-colors">KO</button>
+                <span class="text-neutral-700">|</span>
+                <button onclick="setLanguage('en')" id="lang-en" class="text-neutral-600 hover:text-neutral-400 transition-colors">EN</button>
+            </div>
+            <div class="flex space-x-4 text-secondary">
+                <a href="#" class="hover:text-white transition-colors"><i data-lucide="github"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i data-lucide="twitter"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i data-lucide="linkedin"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i data-lucide="mail"></i></a>
+            </div>
+            <p class="mt-4 text-[10px] text-neutral-600">&copy; 2024 Alex Designer.<br/>All rights reserved.</p>
+        </div>
+    </nav>
+
+    <!-- [3. 메인 콘텐츠 (오른쪽)] -->
+    <main class="flex-1 w-full md:ml-0 min-h-screen transition-all duration-300">
+        <div id="content-area" class="p-6 md:p-12 lg:p-16 max-w-7xl mx-auto pt-20 md:pt-16">
+            <!-- 자바스크립트가 여기에 내용을 채워넣습니다 -->
+        </div>
+        <footer class="p-6 text-center md:text-left text-neutral-800 text-xs md:hidden">
+            &copy; 2024 Alex Designer.
+        </footer>
+    </main>
+
+    <!-- [JAVASCRIPT: 데이터 및 로직] -->
+    <script>
+        // =========================================================================
+        // [설정 구역] 여기서 데이터를 수정하세요.
+        // =========================================================================
+        
+        // 1. 프로젝트 목록 (Work)
+        // category: 'Speculative Design', 'Exhibition Design', 'Design Assay', 'Diagram Study' 중 하나 권장
+        // image: 같은 폴더에 이미지가 있다면 'project1.jpg' 처럼 파일명만 쓰세요. 지금은 예시 이미지를 넣어뒀습니다.
+        // heightClass: 카드 비율 설정 (aspect-[3/4], aspect-[4/3], aspect-square 등)
+        const PROJECTS = [
+            {
+                id: '1',
+                title: 'Minimalist Brand Identity',
+                category: 'Speculative Design',
+                image: 'https://picsum.photos/600/800?random=1', 
+                heightClass: 'aspect-[3/4]',
+                year: '2023',
+                client: 'Mono Inc.',
+                desc_ko: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다.\n시각적 노이즈를 줄이고 본질적인 상호작용에 집중했습니다.",
+                desc_en: "This project explores the relationship between digital interfaces and human perception. By reducing visual noise and focusing on essential interactions."
+            },
+            {
+                id: '2',
+                title: 'Fintech Dashboard',
+                category: 'Diagram Study',
+                image: 'https://picsum.photos/800/600?random=2',
+                heightClass: 'aspect-[4/3]',
+                year: '2024',
+                desc_ko: "금융 시장 데이터를 시각화하는 방법에 대한 포괄적인 연구입니다.\n복잡한 데이터셋을 직관적인 인사이트로 전달합니다.",
+                desc_en: "A comprehensive study on data visualization for financial markets. The goal was to simplify complex datasets into actionable insights."
+            },
+            {
+                id: '3',
+                title: 'Typography Poster',
+                category: 'Exhibition Design',
+                image: 'https://picsum.photos/600/900?random=3',
+                heightClass: 'aspect-[2/3]',
+                year: '2022',
+                client: 'Seoul Art Center',
+                desc_ko: "현대 타이포그래피 전시를 위해 디자인된 포스터 시리즈입니다.",
+                desc_en: "A series of posters designed for a modern typography exhibition."
+            },
+            {
+                id: '4',
+                title: 'E-commerce Mobile App',
+                category: 'Design Assay',
+                image: 'https://picsum.photos/600/1000?random=4',
+                heightClass: 'aspect-[9/16]',
+                year: '2023',
+                desc_ko: "제스처 기반의 탐색과 몰입형 상품 디스플레이를 통해 모바일 쇼핑 경험을 재정의했습니다.",
+                desc_en: "Redefining the mobile shopping experience through gesture-based navigation."
+            },
+            {
+                id: '5',
+                title: 'Neon Packaging Design',
+                category: 'Exhibition Design',
+                image: 'https://picsum.photos/600/400?random=9',
+                heightClass: 'aspect-[3/2]',
+                year: '2022',
+                client: 'Glow Beverage',
+                desc_ko: "UV 반응성 잉크를 활용한 패키지 디자인입니다.",
+                desc_en: "Packaging design that utilizes UV-reactive inks."
+            }
+        ];
+
+        // 2. 스터디 목록 (Study)
+        const STUDIES = [
+            {
+                id: 's1',
+                title: 'The Future of Interfaces',
+                year: '2024.02',
+                desc_ko: '비시각적 UI 패턴에 대한 탐구. 햅틱과 오디오 신호에 의존하는 인터페이스.',
+                desc_en: 'Exploration of non-visual UI patterns. Interfaces relying on haptics and audio.'
+            },
+            {
+                id: 's2',
+                title: 'Generative Grids',
+                year: '2024.01',
+                desc_ko: 'p5.js를 활용한 코드 기반 레이아웃 실험.',
+                desc_en: 'Code-based layout experiments using p5.js.'
+            },
+            {
+                id: 's3',
+                title: 'Color Theory',
+                year: '2023.11',
+                desc_ko: '현대 웹 디자인의 명암비와 접근성 분석.',
+                desc_en: 'Analyzing contrast ratios in modern web design.'
+            }
+        ];
+
+        // 3. 텍스트 번역 (UI Text)
+        const TRANSLATIONS = {
+            ko: {
+                menu_work: '작업',
+                menu_study: '스터디',
+                menu_about: '소개',
+                menu_contact: '문의',
+                menu_guestbook: '방명록',
+                menu_all_projects: '전체 프로젝트',
+                title_work: '주요 작업',
+                desc_work: '최근 진행한 디자인 프로젝트 모음입니다.',
+                btn_back: '목록으로 돌아가기',
+                label_year: '연도',
+                label_client: '클라이언트',
+                label_overview: '개요',
+                about_title: '몰입과 정교함으로 디지털 경험을 설계합니다.',
+                about_body: '안녕하세요, 알렉스입니다. 서울을 기반으로 활동하는 디자이너입니다.<br><br>그래픽 디자인의 조형미와 인터페이스의 기능성을 연결하는 작업에 집중하고 있습니다.',
+                contact_title: '프로젝트 의뢰하기',
+                guestbook_title: '방명록',
+                guestbook_desc: '자유롭게 메시지나 피드백을 남겨주세요.'
+            },
+            en: {
+                menu_work: 'Work',
+                menu_study: 'Study',
+                menu_about: 'About',
+                menu_contact: 'Contact',
+                menu_guestbook: 'Guestbook',
+                menu_all_projects: 'All Projects',
+                title_work: 'Selected Work',
+                desc_work: 'A collection of recent design projects.',
+                btn_back: 'Back to list',
+                label_year: 'Year',
+                label_client: 'Client',
+                label_overview: 'Overview',
+                about_title: 'Designing digital experiences with focus and precision.',
+                about_body: 'Hello, I\'m Alex. A multidisciplinary designer based in Seoul.<br><br>I bridge the gap between aesthetic beauty and functional usability.',
+                contact_title: "Let's work together.",
+                guestbook_title: 'Guestbook',
+                guestbook_desc: 'Leave a message or feedback below.'
+            }
+        };
+
+        // =========================================================================
+        // [시스템 로직] 아래는 수정하지 않으셔도 됩니다.
+        // =========================================================================
+
+        let state = {
+            lang: 'ko',          // 현재 언어 ('ko' 또는 'en')
+            section: 'Work',     // 현재 섹션
+            category: 'All',     // 현재 카테고리 (Work일 때)
+            project: null        // 현재 보고 있는 상세 프로젝트 (없으면 null)
+        };
+
+        const contentArea = document.getElementById('content-area');
+
+        // [초기화]
+        function init() {
+            renderSidebar();
+            renderContent();
+            setupMobileMenu();
+            lucide.createIcons();
+        }
+
+        // [상태 변경 및 네비게이션]
+        function navigate(section, category = 'All') {
+            state.section = section;
+            state.project = null; // 상세페이지 닫기
+            if (section === 'Work') state.category = category;
+            
+            renderSidebar(); // 메뉴 활성화 상태 업데이트
+            renderContent(); // 본문 업데이트
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // 모바일 메뉴 닫기
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('mobile-overlay').classList.add('hidden');
+        }
+
+        function setLanguage(lang) {
+            state.lang = lang;
+            updateUIText();
+            renderSidebar(); // 언어 버튼 스타일 업데이트
+            renderContent(); // 본문 내용 번역 업데이트
+        }
+
+        function openProject(projectId) {
+            const project = PROJECTS.find(p => p.id === projectId);
+            if (project) {
+                state.project = project;
+                renderContent();
+            }
+        }
+
+        // [렌더링: 본문]
+        function renderContent() {
+            const t = TRANSLATIONS[state.lang];
+            let html = '';
+
+            // 1. 상세 페이지 보기 모드
+            if (state.project) {
+                const p = state.project;
+                const desc = state.lang === 'ko' ? p.desc_ko : p.desc_en;
+                
+                html = `
+                    <div class="animate-fade-in-up pb-20">
+                        <button onclick="navigate('Work', '${state.category}')" class="group flex items-center text-secondary hover:text-white transition-colors mb-8">
+                            <i data-lucide="arrow-left" class="mr-2 w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
+                            <span class="text-sm font-medium uppercase tracking-wide">${t.btn_back}</span>
+                        </button>
+                        
+                        <header class="mb-12 border-b border-neutral-800 pb-8">
+                            <h1 class="text-4xl md:text-5xl font-light text-white mb-2 tracking-tight">${p.title}</h1>
+                            <span class="text-accent text-sm font-bold uppercase tracking-wider">${p.category}</span>
+                            <div class="mt-6 flex space-x-12 text-sm">
+                                <div><span class="block text-neutral-500 uppercase text-[10px] tracking-widest mb-1">${t.label_year}</span><span class="text-white">${p.year}</span></div>
+                                ${p.client ? `<div><span class="block text-neutral-500 uppercase text-[10px] tracking-widest mb-1">${t.label_client}</span><span class="text-white">${p.client}</span></div>` : ''}
+                            </div>
+                        </header>
+
+                        <div class="space-y-12">
+                            <div class="w-full rounded-lg overflow-hidden bg-neutral-900 border border-neutral-800">
+                                <img src="${p.image}" alt="${p.title}" class="w-full h-auto max-h-[80vh] object-contain">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                                <div class="md:col-span-4"><h3 class="text-white font-medium mb-2">${t.label_overview}</h3><div class="h-0.5 w-12 bg-accent mb-4"></div></div>
+                                <div class="md:col-span-8"><p class="text-secondary text-lg leading-relaxed whitespace-pre-line">${desc}</p></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            // 2. 섹션별 목록 보기 모드
+            else {
+                switch (state.section) {
+                    case 'Work':
+                        const filtered = state.category === 'All' ? PROJECTS : PROJECTS.filter(p => p.category === state.category);
+                        const title = state.category === 'All' ? t.title_work : state.category;
+                        const sub = state.category === 'All' ? t.desc_work : '';
+                        
+                        let gridHtml = filtered.map(item => `
+                            <div onclick="openProject('${item.id}')" class="break-inside-avoid group relative cursor-pointer mb-6">
+                                <div class="relative w-full overflow-hidden rounded-lg bg-neutral-800 ${item.heightClass}">
+                                    <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                        <span class="text-accent text-xs font-bold uppercase tracking-wider mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">${item.category}</span>
+                                        <div class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                                            <h3 class="text-white text-lg font-medium leading-tight">${item.title}</h3>
+                                            <i data-lucide="arrow-up-right" class="text-white opacity-75 w-5 h-5"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+
+                        html = `
+                            <div class="animate-fade-in-up">
+                                <div class="mb-8">
+                                    <h2 class="text-3xl font-light text-white mb-2">${title}</h2>
+                                    <p class="text-secondary font-light">${sub}</p>
+                                </div>
+                                <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                                    ${filtered.length > 0 ? gridHtml : '<p class="text-secondary py-10">No projects found.</p>'}
+                                </div>
+                            </div>
+                        `;
+                        break;
+
+                    case 'Study':
+                        let listHtml = STUDIES.map(s => `
+                            <div class="group border-b border-neutral-800 pb-6 hover:border-neutral-600 transition-colors cursor-pointer">
+                                <div class="flex flex-col md:flex-row md:items-baseline md:space-x-8">
+                                    <span class="text-sm text-secondary font-mono mb-2 md:mb-0 w-24 flex-shrink-0">${s.year}</span>
+                                    <div>
+                                        <h3 class="text-xl text-white font-medium group-hover:text-accent transition-colors">${s.title}</h3>
+                                        <p class="text-secondary mt-1">${state.lang === 'ko' ? s.desc_ko : s.desc_en}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        html = `<div class="animate-fade-in-up"><h2 class="text-3xl font-light text-white mb-8">${t.menu_study}</h2><div class="space-y-6">${listHtml}</div></div>`;
+                        break;
+
+                    case 'About':
+                        html = `
+                            <div class="max-w-3xl w-full mx-auto space-y-12 animate-fade-in-up">
+                                <section>
+                                    <h2 class="text-4xl font-light text-white mb-6 leading-tight">${t.about_title}</h2>
+                                    <div class="space-y-6 text-lg text-secondary leading-relaxed"><p>${t.about_body}</p></div>
+                                </section>
+                                <div class="border-t border-neutral-800 pt-12">
+                                    <h3 class="text-xl text-white font-medium mb-4">Featured Reel</h3>
+                                    <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-neutral-800 border border-neutral-800 shadow-2xl">
+                                        <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/lxRwEPvL-mQ?si=placeholder" title="Reel" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+
+                    case 'Contact':
+                        html = `
+                            <div class="max-w-2xl w-full mx-auto animate-fade-in-up">
+                                <h2 class="text-3xl font-light text-white mb-8">${t.contact_title}</h2>
+                                <div class="bg-neutral-900 rounded-xl p-8 border border-neutral-800 space-y-6">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="p-3 bg-neutral-800 rounded-lg text-white"><i data-lucide="mail"></i></div>
+                                        <div><h3 class="text-white font-medium">Email</h3><a href="mailto:hello@alex.design" class="text-accent">hello@alex.design</a></div>
+                                    </div>
+                                    <div class="flex items-start space-x-4">
+                                        <div class="p-3 bg-neutral-800 rounded-lg text-white"><i data-lucide="map-pin"></i></div>
+                                        <div><h3 class="text-white font-medium">Studio</h3><p class="text-secondary">Seoul, Korea</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+
+                    case 'Guestbook':
+                        html = `
+                            <div class="max-w-3xl w-full mx-auto animate-fade-in-up">
+                                <h2 class="text-3xl font-light text-white mb-8">${t.guestbook_title}</h2>
+                                <div class="bg-neutral-900 rounded-xl p-8 border border-neutral-800 min-h-[400px]">
+                                    <div class="text-center text-secondary mb-8"><p>${t.guestbook_desc}</p></div>
+                                    <div id="giscus-container" class="w-full"></div>
+                                </div>
+                            </div>
+                        `;
+                        // Giscus Script Inject (Placeholder)
+                        setTimeout(() => {
+                            if(document.getElementById('giscus-container') && !document.querySelector('.giscus-frame')) {
+                                // 실제 Giscus 스크립트는 여기에 생성 로직 추가
+                                // 예: const s = document.createElement('script'); ...
+                            }
+                        }, 100);
+                        break;
+                }
+            }
+
+            contentArea.innerHTML = html;
+            lucide.createIcons(); // 아이콘 새로고침
+        }
+
+        // [렌더링: 사이드바 스타일]
+        function renderSidebar() {
+            // 언어 텍스트 업데이트
+            const t = TRANSLATIONS[state.lang];
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (t[key]) el.innerText = t[key];
+            });
+
+            // 메뉴 활성화 스타일 (Bold, White color 등)
+            document.querySelectorAll('.nav-main, .nav-item').forEach(el => {
+                el.classList.remove('text-white', 'bg-neutral-800');
+                el.classList.add('text-secondary');
+            });
+
+            if (state.section === 'Work') {
+                document.getElementById('btn-work').classList.add('text-white');
+                const catBtn = document.querySelector(`[data-category="${state.category}"]`);
+                if(catBtn) {
+                    catBtn.classList.add('text-white', 'bg-neutral-800');
+                    catBtn.classList.remove('text-secondary');
+                }
+            } else {
+                document.getElementById('btn-work').classList.remove('text-white');
+                document.getElementById('btn-work').classList.add('text-secondary');
+                const btn = document.getElementById(`btn-${state.section.toLowerCase()}`);
+                if(btn) {
+                    btn.classList.add('text-white', 'bg-neutral-800');
+                    btn.classList.remove('text-secondary');
+                }
+            }
+
+            // 언어 버튼 스타일
+            document.getElementById('lang-ko').className = state.lang === 'ko' ? 'text-white font-bold' : 'text-neutral-600 hover:text-white transition-colors';
+            document.getElementById('lang-en').className = state.lang === 'en' ? 'text-white font-bold' : 'text-neutral-600 hover:text-white transition-colors';
+        }
+
+        function updateUIText() {
+            // 사이드바 다시 렌더링으로 해결
+        }
+
+        // [이벤트: 아코디언 토글]
+        let isWorkOpen = true;
+        function toggleWorkMenu() {
+            isWorkOpen = !isWorkOpen;
+            const menu = document.getElementById('work-submenu');
+            const icon = document.getElementById('work-chevron');
+            if (isWorkOpen) {
+                menu.style.maxHeight = '14rem'; // 56 * 4px
+                menu.style.opacity = '1';
+                menu.style.marginTop = '0.25rem';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                menu.style.maxHeight = '0';
+                menu.style.opacity = '0';
+                menu.style.marginTop = '0';
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        // [이벤트: 모바일 메뉴]
+        function setupMobileMenu() {
+            const btn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            function toggle() {
+                const isClosed = sidebar.classList.contains('-translate-x-full');
+                if (isClosed) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                }
+            }
+            
+            btn.addEventListener('click', toggle);
+            overlay.addEventListener('click', toggle);
+        }
+
+        // 시작
+        init();
+
+    </script>
+</body>
+</html>
