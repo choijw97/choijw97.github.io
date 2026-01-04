@@ -46,12 +46,21 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 애니메이션 */
+        /* 애니메이션: 페이드 인 업 */
         @keyframes fade-in-up {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+
+        /* Lightbox 스타일 */
+        #lightbox { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        #lightbox.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        #lightbox:not(.hidden) { opacity: 1; visibility: visible; pointer-events: auto; }
+        
+        /* 이미지 줌 애니메이션 */
+        .img-hover-zoom { transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.5s ease; }
+        .img-hover-zoom:hover { transform: scale(1.03); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5); }
     </style>
 <script type="importmap">
 {
@@ -75,7 +84,7 @@
     <!-- [2. 사이드바 (왼쪽 메뉴)] -->
     <nav id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-neutral-800 transform -translate-x-full md:translate-x-0 md:static md:h-screen md:flex md:flex-col transition-transform duration-300 ease-in-out">
         <div class="p-8 pb-4">
-            <h1 class="text-2xl font-bold tracking-tighter text-white mb-1">Junwoo.Choi</h1>
+            <h1 class="text-2xl font-bold tracking-tighter text-white mb-1">ALEX.DESIGN</h1>
             <p class="text-xs text-secondary uppercase tracking-widest">Portfolio 2024</p>
         </div>
 
@@ -131,6 +140,14 @@
         </footer>
     </main>
 
+    <!-- [4. Lightbox (이미지 모달)] -->
+    <div id="lightbox" class="fixed inset-0 z-[60] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Full view" class="max-w-full max-h-[90vh] object-contain rounded-md shadow-2xl scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+        <button class="absolute top-6 right-6 text-white hover:text-gray-300 z-[70]" onclick="closeLightbox()">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+    </div>
+
     <!-- [JAVASCRIPT: 데이터 및 로직] -->
     <script>
         // =========================================================================
@@ -138,9 +155,8 @@
         // =========================================================================
         
         // 1. 프로젝트 목록 (Work)
-        // category: 'Speculative Design', 'Exhibition Design', 'Design Assay', 'Diagram Study' 중 하나 권장
-        // image: 같은 폴더에 이미지가 있다면 'project1.jpg' 처럼 파일명만 쓰세요. 지금은 예시 이미지를 넣어뒀습니다.
-        // heightClass: 카드 비율 설정 (aspect-[3/4], aspect-[4/3], aspect-square 등)
+        // desc_ko/en: 목록(그리드)에서 보여줄 짧은 설명
+        // content_ko/en: 상세 페이지에서 보여줄 내용 (text와 image를 섞어서 작성 가능)
         const PROJECTS = [
             {
                 id: '1',
@@ -150,8 +166,22 @@
                 heightClass: 'aspect-[3/4]',
                 year: '2023',
                 client: 'Mono Inc.',
-                desc_ko: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다.\n시각적 노이즈를 줄이고 본질적인 상호작용에 집중했습니다.",
-                desc_en: "This project explores the relationship between digital interfaces and human perception. By reducing visual noise and focusing on essential interactions."
+                desc_ko: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다.",
+                desc_en: "This project explores the relationship between digital interfaces and human perception.",
+                // [상세 페이지 내용 혼합 예시]
+                content_ko: [
+                    { type: 'text', value: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다. 시각적 노이즈를 줄이고 본질적인 상호작용에 집중하여, 시간이 지나도 변치 않으면서 미래지향적인 시스템을 구축했습니다." },
+                    { type: 'image', value: "https://picsum.photos/800/600?random=101" },
+                    { type: 'text', value: "사용자 테스트와 반복적인 프로토타이핑을 통해 모든 요소가 분명한 목적을 가지도록 설계했습니다. 특히 타이포그래피의 위계를 조절하여 정보 전달력을 높이는 데 주력했습니다." },
+                    { type: 'image', value: "https://picsum.photos/800/400?random=102" },
+                    { type: 'text', value: "최종 결과물은 클라이언트의 요구사항을 충족시키면서도 브랜드만의 독특한 아이덴티티를 확립하는 데 성공했습니다." }
+                ],
+                content_en: [
+                    { type: 'text', value: "This project explores the relationship between digital interfaces and human perception. By reducing visual noise and focusing on essential interactions." },
+                    { type: 'image', value: "https://picsum.photos/800/600?random=101" },
+                    { type: 'text', value: "We focused on typographic hierarchy to improve information delivery." },
+                    { type: 'image', value: "https://picsum.photos/800/400?random=102" }
+                ]
             },
             {
                 id: '2',
@@ -160,8 +190,8 @@
                 image: 'https://picsum.photos/800/600?random=2',
                 heightClass: 'aspect-[4/3]',
                 year: '2024',
-                desc_ko: "금융 시장 데이터를 시각화하는 방법에 대한 포괄적인 연구입니다.\n복잡한 데이터셋을 직관적인 인사이트로 전달합니다.",
-                desc_en: "A comprehensive study on data visualization for financial markets. The goal was to simplify complex datasets into actionable insights."
+                desc_ko: "금융 시장 데이터를 시각화하는 방법에 대한 포괄적인 연구입니다.",
+                desc_en: "A comprehensive study on data visualization for financial markets."
             },
             {
                 id: '3',
@@ -265,7 +295,7 @@
         };
 
         // =========================================================================
-        // [시스템 로직] 아래는 수정하지 않으셔도 됩니다.
+        // [시스템 로직]
         // =========================================================================
 
         let state = {
@@ -291,8 +321,8 @@
             state.project = null; // 상세페이지 닫기
             if (section === 'Work') state.category = category;
             
-            renderSidebar(); // 메뉴 활성화 상태 업데이트
-            renderContent(); // 본문 업데이트
+            renderSidebar(); 
+            renderContent(); 
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
             // 모바일 메뉴 닫기
@@ -303,8 +333,8 @@
         function setLanguage(lang) {
             state.lang = lang;
             updateUIText();
-            renderSidebar(); // 언어 버튼 스타일 업데이트
-            renderContent(); // 본문 내용 번역 업데이트
+            renderSidebar(); 
+            renderContent(); 
         }
 
         function openProject(projectId) {
@@ -315,15 +345,58 @@
             }
         }
 
+        // [Lightbox 로직]
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lb.classList.remove('hidden');
+            // 애니메이션을 위해 약간의 지연 후 스케일 원복
+            setTimeout(() => {
+                img.classList.remove('scale-95');
+                img.classList.add('scale-100');
+            }, 10);
+        }
+        
+        function closeLightbox() {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+            lb.classList.add('hidden');
+        }
+
         // [렌더링: 본문]
         function renderContent() {
             const t = TRANSLATIONS[state.lang];
             let html = '';
 
-            // 1. 상세 페이지 보기 모드
+            // 1. 상세 페이지 보기 모드 (Content Logic Updated)
             if (state.project) {
                 const p = state.project;
-                const desc = state.lang === 'ko' ? p.desc_ko : p.desc_en;
+                
+                // Content가 있으면 사용하고, 없으면 desc를 사용하여 기본 텍스트 블록 생성
+                let contentData = p[`content_${state.lang}`];
+                if (!contentData) {
+                    contentData = [{ type: 'text', value: p[`desc_${state.lang}`] }];
+                }
+
+                // Content 블록 렌더링
+                let contentHtml = contentData.map(block => {
+                    if (block.type === 'text') {
+                        return `<p class="text-secondary text-lg leading-relaxed whitespace-pre-line mb-8">${block.value}</p>`;
+                    } else if (block.type === 'image') {
+                        return `
+                            <div class="rounded-lg overflow-hidden bg-neutral-900 border border-neutral-800 mb-8 group">
+                                <img src="${block.value}" 
+                                     class="w-full h-auto object-cover img-hover-zoom cursor-zoom-in" 
+                                     onclick="openLightbox(this.src)" 
+                                     loading="lazy" 
+                                     alt="Project detail">
+                            </div>
+                        `;
+                    }
+                }).join('');
                 
                 html = `
                     <div class="animate-fade-in-up pb-20">
@@ -342,12 +415,18 @@
                         </header>
 
                         <div class="space-y-12">
+                            <!-- Hero Image -->
                             <div class="w-full rounded-lg overflow-hidden bg-neutral-900 border border-neutral-800">
-                                <img src="${p.image}" alt="${p.title}" class="w-full h-auto max-h-[80vh] object-contain">
+                                <img src="${p.image}" alt="${p.title}" 
+                                     class="w-full h-auto max-h-[80vh] object-contain cursor-zoom-in img-hover-zoom"
+                                     onclick="openLightbox(this.src)">
                             </div>
+                            
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                                 <div class="md:col-span-4"><h3 class="text-white font-medium mb-2">${t.label_overview}</h3><div class="h-0.5 w-12 bg-accent mb-4"></div></div>
-                                <div class="md:col-span-8"><p class="text-secondary text-lg leading-relaxed whitespace-pre-line">${desc}</p></div>
+                                <div class="md:col-span-8">
+                                    ${contentHtml}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -362,9 +441,9 @@
                         const sub = state.category === 'All' ? t.desc_work : '';
                         
                         let gridHtml = filtered.map(item => `
-                            <div onclick="openProject('${item.id}')" class="break-inside-avoid group relative cursor-pointer mb-6">
-                                <div class="relative w-full overflow-hidden rounded-lg bg-neutral-800 ${item.heightClass}">
-                                    <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                            <div onclick="openProject('${item.id}')" class="break-inside-avoid group relative cursor-pointer mb-3 md:mb-6 perspective-1000">
+                                <div class="relative w-full overflow-hidden rounded-lg bg-neutral-800 ${item.heightClass} shadow-lg img-hover-zoom">
+                                    <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover" loading="lazy">
                                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                                         <span class="text-accent text-xs font-bold uppercase tracking-wider mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">${item.category}</span>
                                         <div class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
@@ -382,7 +461,7 @@
                                     <h2 class="text-3xl font-light text-white mb-2">${title}</h2>
                                     <p class="text-secondary font-light">${sub}</p>
                                 </div>
-                                <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                                <div class="columns-2 md:columns-2 lg:columns-3 gap-3 md:gap-6">
                                     ${filtered.length > 0 ? gridHtml : '<p class="text-secondary py-10">No projects found.</p>'}
                                 </div>
                             </div>
@@ -413,7 +492,7 @@
                                 </section>
                                 <div class="border-t border-neutral-800 pt-12">
                                     <h3 class="text-xl text-white font-medium mb-4">Featured Reel</h3>
-                                    <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-neutral-800 border border-neutral-800 shadow-2xl">
+                                    <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-neutral-800 border border-neutral-800 shadow-2xl img-hover-zoom">
                                         <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/lxRwEPvL-mQ?si=placeholder" title="Reel" frameborder="0" allowfullscreen></iframe>
                                     </div>
                                 </div>
@@ -428,7 +507,7 @@
                                 <div class="bg-neutral-900 rounded-xl p-8 border border-neutral-800 space-y-6">
                                     <div class="flex items-start space-x-4">
                                         <div class="p-3 bg-neutral-800 rounded-lg text-white"><i data-lucide="mail"></i></div>
-                                        <div><h3 class="text-white font-medium">Email</h3><a href="mailto:hello@Junwoo.Choi" class="text-accent">hello@Junwoo.Choi</a></div>
+                                        <div><h3 class="text-white font-medium">Email</h3><a href="mailto:hello@alex.design" class="text-accent">hello@alex.design</a></div>
                                     </div>
                                     <div class="flex items-start space-x-4">
                                         <div class="p-3 bg-neutral-800 rounded-lg text-white"><i data-lucide="map-pin"></i></div>
@@ -449,11 +528,9 @@
                                 </div>
                             </div>
                         `;
-                        // Giscus Script Inject (Placeholder)
                         setTimeout(() => {
                             if(document.getElementById('giscus-container') && !document.querySelector('.giscus-frame')) {
-                                // 실제 Giscus 스크립트는 여기에 생성 로직 추가
-                                // 예: const s = document.createElement('script'); ...
+                                // Giscus 스크립트 로직 (필요시 활성화)
                             }
                         }, 100);
                         break;
@@ -473,7 +550,7 @@
                 if (t[key]) el.innerText = t[key];
             });
 
-            // 메뉴 활성화 스타일 (Bold, White color 등)
+            // 메뉴 활성화 스타일
             document.querySelectorAll('.nav-main, .nav-item').forEach(el => {
                 el.classList.remove('text-white', 'bg-neutral-800');
                 el.classList.add('text-secondary');
@@ -550,5 +627,4 @@
 
     </script>
 </body>
-
 </html>
