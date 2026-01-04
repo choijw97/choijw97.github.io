@@ -3,46 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartographer - Design Researcher Portfoilo </title>
+    <title>Designer Portfolio</title>
     
-    <!-- [라이브러리 불러오기] -->
-    <!-- Tailwind CSS (스타일링) -->
+    <!-- [1. 라이브러리 로드] -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons (아이콘) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- 폰트 (Inter) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel (JSX 변환용) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- [스타일 설정] -->
+    <!-- [2. 폰트 및 테마 설정] -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script>
+        // ▼ [테마 컬러 수정]
+        const accentColor = '#3b82f6'; // 강조색 (기본: 파란색)
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        background: '#0a0a0a',
-                        surface: '#171717',
-                        primary: '#ffffff',
-                        secondary: '#a3a3a3',
-                        accent: '#3b82f6',
+                        background: '#0a0a0a', // 배경색
+                        surface: '#171717',    // 카드 배경
+                        primary: '#ffffff',    // 메인 글자
+                        secondary: '#a3a3a3',  // 보조 글자
+                        accent: accentColor,
                     }
                 }
             }
         }
     </script>
+
+    <!-- [3. CSS 스타일 & 애니메이션] -->
     <style>
         body { background-color: #0a0a0a; color: #ffffff; }
         
-        /* 스크롤바 커스텀 */
-        ::-webkit-scrollbar { width: 8px; }
+        /* 스크롤바 디자인 */
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #404040; }
-        
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -51,16 +53,39 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+        .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Lightbox 스타일 */
-        #lightbox { transition: opacity 0.3s ease, visibility 0.3s ease; }
-        #lightbox.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        #lightbox:not(.hidden) { opacity: 1; visibility: visible; pointer-events: auto; }
-        
-        /* 이미지 줌 애니메이션 */
-        .img-hover-zoom { transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.5s ease; }
-        .img-hover-zoom:hover { transform: scale(1.03); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5); }
+        /* 애니메이션: 스크롤 리빌 */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, transform;
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 카드 효과 */
+        .img-card-container {
+            transition: box-shadow 0.4s ease, transform 0.4s ease;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .img-card-container:hover {
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            transform: translateY(-4px);
+            z-index: 10;
+        }
+        .img-card-container img {
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+        .img-card-container:active img {
+            transform: scale(0.96); /* 클릭 시 눌리는 효과 */
+            transition: transform 0.1s ease-out;
+        }
     </style>
 <script type="importmap">
 {
@@ -73,558 +98,662 @@
 }
 </script>
 </head>
-<body class="flex min-h-screen font-sans selection:bg-accent selection:text-white overflow-x-hidden">
+<body class="bg-background text-primary selection:bg-accent selection:text-white">
+    
+    <div id="root"></div>
 
-    <!-- [1. 모바일 메뉴 버튼] -->
-    <button id="mobile-menu-btn" class="fixed top-4 right-4 z-50 md:hidden p-2 bg-neutral-800 rounded-full text-white shadow-lg hover:bg-neutral-700 transition-colors">
-        <i data-lucide="menu"></i>
-    </button>
-    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm hidden transition-opacity"></div>
+    <script type="text/babel">
+        /***********************************************************************
+         *  [1] 설정 구역 (Config Zone) - 여기만 수정하세요!
+         ***********************************************************************/
 
-    <!-- [2. 사이드바 (왼쪽 메뉴)] -->
-    <nav id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-neutral-800 transform -translate-x-full md:translate-x-0 md:static md:h-screen md:flex md:flex-col transition-transform duration-300 ease-in-out">
-        <div class="p-8 pb-4">
-            <h1 class="text-2xl font-bold tracking-tighter text-white mb-1">ALEX.DESIGN</h1>
-            <p class="text-xs text-secondary uppercase tracking-widest">Portfolio 2024</p>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1 no-scrollbar">
-            <!-- Work 메뉴 (아코디언) -->
-            <div>
-                <button onclick="toggleWorkMenu()" id="btn-work" class="w-full text-left py-2 px-4 rounded-md transition-colors duration-200 cursor-pointer text-white flex items-center justify-between group">
-                    <span class="font-medium" data-translate="menu_work">Work</span>
-                    <i id="work-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300"></i>
-                </button>
-                <div id="work-submenu" class="pl-4 space-y-1 overflow-hidden transition-all duration-300 max-h-56 opacity-100 mt-1">
-                    <button onclick="navigate('Work', 'All')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="All" data-translate="menu_all_projects">All Projects</button>
-                    <button onclick="navigate('Work', 'Speculative Design')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Speculative Design">Speculative Design</button>
-                    <button onclick="navigate('Work', 'Exhibition Design')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Exhibition Design">Exhibition Design</button>
-                    <button onclick="navigate('Work', 'Design Assay')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Design Assay">Design Assay</button>
-                    <button onclick="navigate('Work', 'Diagram Study')" class="nav-item block w-full text-left py-2 px-4 rounded-md text-sm text-secondary hover:text-white hover:bg-neutral-900" data-category="Diagram Study">Diagram Study</button>
-                </div>
-            </div>
-
-            <!-- 기타 메뉴 -->
-            <div class="mt-4 space-y-1">
-                <button onclick="navigate('Study')" id="btn-study" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_study">Study</button>
-                <button onclick="navigate('About')" id="btn-about" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_about">About</button>
-                <button onclick="navigate('Contact')" id="btn-contact" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_contact">Contact</button>
-                <button onclick="navigate('Guestbook')" id="btn-guestbook" class="nav-main block w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white hover:bg-neutral-900" data-translate="menu_guestbook">Guestbook</button>
-            </div>
-        </div>
-
-        <!-- 하단: 언어 선택 및 소셜 -->
-        <div class="p-8 border-t border-neutral-800">
-            <div class="flex items-center space-x-3 mb-6 text-sm font-medium">
-                <button onclick="setLanguage('ko')" id="lang-ko" class="text-white transition-colors">KO</button>
-                <span class="text-neutral-700">|</span>
-                <button onclick="setLanguage('en')" id="lang-en" class="text-neutral-600 hover:text-neutral-400 transition-colors">EN</button>
-            </div>
-            <div class="flex space-x-4 text-secondary">
-                <a href="#" class="hover:text-white transition-colors"><i data-lucide="github"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i data-lucide="twitter"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i data-lucide="linkedin"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i data-lucide="mail"></i></a>
-            </div>
-            <p class="mt-4 text-[10px] text-neutral-600">&copy; 2024 Alex Designer.<br/>All rights reserved.</p>
-        </div>
-    </nav>
-
-    <!-- [3. 메인 콘텐츠 (오른쪽)] -->
-    <main class="flex-1 w-full md:ml-0 min-h-screen transition-all duration-300">
-        <div id="content-area" class="p-6 md:p-12 lg:p-16 max-w-7xl mx-auto pt-20 md:pt-16">
-            <!-- 자바스크립트가 여기에 내용을 채워넣습니다 -->
-        </div>
-        <footer class="p-6 text-center md:text-left text-neutral-800 text-xs md:hidden">
-            &copy; 2024 Alex Designer.
-        </footer>
-    </main>
-
-    <!-- [4. Lightbox (이미지 모달)] -->
-    <div id="lightbox" class="fixed inset-0 z-[60] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="Full view" class="max-w-full max-h-[90vh] object-contain rounded-md shadow-2xl scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
-        <button class="absolute top-6 right-6 text-white hover:text-gray-300 z-[70]" onclick="closeLightbox()">
-            <i data-lucide="x" class="w-8 h-8"></i>
-        </button>
-    </div>
-
-    <!-- [JAVASCRIPT: 데이터 및 로직] -->
-    <script>
-        // =========================================================================
-        // [설정 구역] 여기서 데이터를 수정하세요.
-        // =========================================================================
-        
-        // 1. 프로젝트 목록 (Work)
-        // desc_ko/en: 목록(그리드)에서 보여줄 짧은 설명
-        // content_ko/en: 상세 페이지에서 보여줄 내용 (text와 image를 섞어서 작성 가능)
-        const PROJECTS = [
-            {
-                id: '1',
-                title: 'Minimalist Brand Identity',
-                category: 'Speculative Design',
-                image: 'https://picsum.photos/600/800?random=1', 
-                heightClass: 'aspect-[3/4]',
-                year: '2023',
-                client: 'Mono Inc.',
-                desc_ko: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다.",
-                desc_en: "This project explores the relationship between digital interfaces and human perception.",
-                // [상세 페이지 내용 혼합 예시]
-                content_ko: [
-                    { type: 'text', value: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다. 시각적 노이즈를 줄이고 본질적인 상호작용에 집중하여, 시간이 지나도 변치 않으면서 미래지향적인 시스템을 구축했습니다." },
-                    { type: 'image', value: "https://picsum.photos/800/600?random=101" },
-                    { type: 'text', value: "사용자 테스트와 반복적인 프로토타이핑을 통해 모든 요소가 분명한 목적을 가지도록 설계했습니다. 특히 타이포그래피의 위계를 조절하여 정보 전달력을 높이는 데 주력했습니다." },
-                    { type: 'image', value: "https://picsum.photos/800/400?random=102" },
-                    { type: 'text', value: "최종 결과물은 클라이언트의 요구사항을 충족시키면서도 브랜드만의 독특한 아이덴티티를 확립하는 데 성공했습니다." }
-                ],
-                content_en: [
-                    { type: 'text', value: "This project explores the relationship between digital interfaces and human perception. By reducing visual noise and focusing on essential interactions." },
-                    { type: 'image', value: "https://picsum.photos/800/600?random=101" },
-                    { type: 'text', value: "We focused on typographic hierarchy to improve information delivery." },
-                    { type: 'image', value: "https://picsum.photos/800/400?random=102" }
-                ]
+        // 1. 기본 정보 (공통)
+        const COMMON_PROFILE = {
+            name: "Alex Designer",
+            role: "Portfolio 2024",
+            email: "hello@alex.design",
+            phone: "+82 10 1234 5678",
+            address: "Gangnam-gu, Seoul",
+            social: {
+                github: "https://github.com",
+                twitter: "https://twitter.com",
+                linkedin: "https://linkedin.com",
+                instagram: "https://instagram.com"
             },
-            {
-                id: '2',
-                title: 'Fintech Dashboard',
-                category: 'Diagram Study',
-                image: 'https://picsum.photos/800/600?random=2',
-                heightClass: 'aspect-[4/3]',
-                year: '2024',
-                desc_ko: "금융 시장 데이터를 시각화하는 방법에 대한 포괄적인 연구입니다.",
-                desc_en: "A comprehensive study on data visualization for financial markets."
-            },
-            {
-                id: '3',
-                title: 'Typography Poster',
-                category: 'Exhibition Design',
-                image: 'https://picsum.photos/600/900?random=3',
-                heightClass: 'aspect-[2/3]',
-                year: '2022',
-                client: 'Seoul Art Center',
-                desc_ko: "현대 타이포그래피 전시를 위해 디자인된 포스터 시리즈입니다.",
-                desc_en: "A series of posters designed for a modern typography exhibition."
-            },
-            {
-                id: '4',
-                title: 'E-commerce Mobile App',
-                category: 'Design Assay',
-                image: 'https://picsum.photos/600/1000?random=4',
-                heightClass: 'aspect-[9/16]',
-                year: '2023',
-                desc_ko: "제스처 기반의 탐색과 몰입형 상품 디스플레이를 통해 모바일 쇼핑 경험을 재정의했습니다.",
-                desc_en: "Redefining the mobile shopping experience through gesture-based navigation."
-            },
-            {
-                id: '5',
-                title: 'Neon Packaging Design',
-                category: 'Exhibition Design',
-                image: 'https://picsum.photos/600/400?random=9',
-                heightClass: 'aspect-[3/2]',
-                year: '2022',
-                client: 'Glow Beverage',
-                desc_ko: "UV 반응성 잉크를 활용한 패키지 디자인입니다.",
-                desc_en: "Packaging design that utilizes UV-reactive inks."
-            }
-        ];
+            youtubeVideoId: "lxRwEPvL-mQ" // 메인 쇼릴 유튜브 ID
+        };
 
-        // 2. 스터디 목록 (Study)
-        const STUDIES = [
-            {
-                id: 's1',
-                title: 'The Future of Interfaces',
-                year: '2024.02',
-                desc_ko: '비시각적 UI 패턴에 대한 탐구. 햅틱과 오디오 신호에 의존하는 인터페이스.',
-                desc_en: 'Exploration of non-visual UI patterns. Interfaces relying on haptics and audio.'
-            },
-            {
-                id: 's2',
-                title: 'Generative Grids',
-                year: '2024.01',
-                desc_ko: 'p5.js를 활용한 코드 기반 레이아웃 실험.',
-                desc_en: 'Code-based layout experiments using p5.js.'
-            },
-            {
-                id: 's3',
-                title: 'Color Theory',
-                year: '2023.11',
-                desc_ko: '현대 웹 디자인의 명암비와 접근성 분석.',
-                desc_en: 'Analyzing contrast ratios in modern web design.'
-            }
-        ];
+        // 2. 한국어 데이터 (KO)
+        const DATA_KO = {
+            introTitle: "몰입과 정교함으로 디지털 경험을 설계합니다.",
+            introDesc: [
+                "안녕하세요, 알렉스입니다. 서울을 기반으로 활동하는 디자이너입니다. 그래픽 디자인의 조형미와 인터페이스의 기능성을 연결하는 작업에 집중하고 있습니다.",
+                "지난 5년여간 스타트업 및 브랜드와 협업하며, 복잡한 디지털 환경에서도 돋보이는 웹사이트와 아이덴티티를 구축해왔습니다."
+            ],
+            // 프로젝트 목록
+            projects: [
+                {
+                    id: 1,
+                    title: "미니멀리스트 브랜드 아이덴티티",
+                    category: "Branding",
+                    year: "2023",
+                    imageUrl: "https://picsum.photos/600/800?random=1",
+                    heightClass: "aspect-[3/4]",
+                    description: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다.",
+                    content: [
+                        { type: 'text', value: "브랜드의 핵심 가치를 시각화하기 위해 불필요한 장식을 배제하고 본질에 집중했습니다." },
+                        { type: 'image', value: "https://picsum.photos/800/600?random=101" },
+                        { type: 'text', value: "사용자 경험을 고려하여 타이포그래피의 가독성을 최우선으로 두었습니다." }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "핀테크 대시보드",
+                    category: "UI/UX",
+                    year: "2024",
+                    imageUrl: "https://picsum.photos/800/600?random=2",
+                    heightClass: "aspect-video",
+                    description: "금융 데이터를 직관적으로 보여주는 대시보드 디자인입니다."
+                },
+                {
+                    id: 3,
+                    title: "타이포그래피 포스터",
+                    category: "Graphic",
+                    year: "2022",
+                    imageUrl: "https://picsum.photos/600/900?random=3",
+                    heightClass: "aspect-[2/3]",
+                    description: "한글의 조형미를 살린 전시 포스터 시리즈입니다."
+                },
+                {
+                    id: 4,
+                    title: "모바일 커머스 앱",
+                    category: "Mobile",
+                    year: "2023",
+                    imageUrl: "https://picsum.photos/600/1000?random=4",
+                    heightClass: "aspect-[9/16]",
+                    description: "제스처 기반의 쇼핑 경험을 제안하는 앱 디자인입니다."
+                },
+                {
+                    id: 5,
+                    title: "3D 아트워크 컬렉션",
+                    category: "3D Art",
+                    year: "2021",
+                    imageUrl: "https://picsum.photos/700/700?random=5",
+                    heightClass: "aspect-square",
+                    description: "초현실적인 분위기를 연출한 3D 그래픽 실험작입니다."
+                },
+                {
+                    id: 6,
+                    title: "전시 공간 디자인",
+                    category: "Space",
+                    year: "2022",
+                    imageUrl: "https://picsum.photos/800/500?random=6",
+                    heightClass: "aspect-[16/10]",
+                    description: "관람객의 동선을 고려한 인터랙티브 전시 공간입니다."
+                }
+            ],
+            // 스터디 목록
+            studies: [
+                { id: 101, title: "인터페이스의 미래", year: "2024.02", desc: "비시각적 UI 패턴에 대한 탐구와 햅틱 반응 연구." },
+                { id: 102, title: "제너레이티브 그리드", year: "2024.01", desc: "p5.js를 활용한 코드 기반 레이아웃 실험." },
+                { id: 103, title: "VR 타이포그래피", year: "2023.12", desc: "가상 환경에서의 텍스트 가독성 연구." }
+            ]
+        };
 
-        // 3. 텍스트 번역 (UI Text)
+        // 3. 영어 데이터 (EN)
+        const DATA_EN = {
+            introTitle: "Designing digital experiences with focus and precision.",
+            introDesc: [
+                "Hello, I'm Alex. A multidisciplinary designer based in Seoul. I bridge the gap between aesthetic beauty and functional usability.",
+                "Over the past 5 years, I've worked with startups and brands to create identities that stand out."
+            ],
+            // Projects (English)
+            projects: [
+                {
+                    id: 1,
+                    title: "Minimalist Brand Identity",
+                    category: "Branding",
+                    year: "2023",
+                    imageUrl: "https://picsum.photos/600/800?random=1",
+                    heightClass: "aspect-[3/4]",
+                    description: "A project exploring the relationship between digital interfaces and human perception.",
+                    content: [
+                        { type: 'text', value: "We focused on the essence by eliminating unnecessary decorations." },
+                        { type: 'image', value: "https://picsum.photos/800/600?random=101" },
+                        { type: 'text', value: "Typography readability was prioritized for user experience." }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Fintech Dashboard",
+                    category: "UI/UX",
+                    year: "2024",
+                    imageUrl: "https://picsum.photos/800/600?random=2",
+                    heightClass: "aspect-video",
+                    description: "A dashboard design that intuitively visualizes financial data."
+                },
+                {
+                    id: 3,
+                    title: "Typography Poster",
+                    category: "Graphic",
+                    year: "2022",
+                    imageUrl: "https://picsum.photos/600/900?random=3",
+                    heightClass: "aspect-[2/3]",
+                    description: "A poster series highlighting the structural beauty of Hangeul."
+                },
+                {
+                    id: 4,
+                    title: "Mobile Commerce App",
+                    category: "Mobile",
+                    year: "2023",
+                    imageUrl: "https://picsum.photos/600/1000?random=4",
+                    heightClass: "aspect-[9/16]",
+                    description: "App design proposing a gesture-based shopping experience."
+                },
+                {
+                    id: 5,
+                    title: "3D Artwork Collection",
+                    category: "3D Art",
+                    year: "2021",
+                    imageUrl: "https://picsum.photos/700/700?random=5",
+                    heightClass: "aspect-square",
+                    description: "Experimental 3D graphics creating a surreal atmosphere."
+                },
+                {
+                    id: 6,
+                    title: "Exhibition Space Design",
+                    category: "Space",
+                    year: "2022",
+                    imageUrl: "https://picsum.photos/800/500?random=6",
+                    heightClass: "aspect-[16/10]",
+                    description: "Interactive exhibition space considering visitor flow."
+                }
+            ],
+            // Studies (English)
+            studies: [
+                { id: 101, title: "Future of Interfaces", year: "2024.02", desc: "Exploration of non-visual UI patterns and haptics." },
+                { id: 102, title: "Generative Grids", year: "2024.01", desc: "Code-based layout experiments using p5.js." },
+                { id: 103, title: "VR Typography", year: "2023.12", desc: "Readability studies in virtual environments." }
+            ]
+        };
+
+        // 4. UI 텍스트 번역 사전
         const TRANSLATIONS = {
             ko: {
                 menu_work: '작업',
                 menu_study: '스터디',
                 menu_about: '소개',
                 menu_contact: '문의',
-                menu_guestbook: '방명록',
-                menu_all_projects: '전체 프로젝트',
-                title_work: '주요 작업',
-                desc_work: '최근 진행한 디자인 프로젝트 모음입니다.',
-                btn_back: '목록으로 돌아가기',
+                menu_all: '전체 프로젝트',
+                title_selected: '주요 작업',
+                desc_selected: '최근 진행한 디자인 프로젝트 모음입니다.',
                 label_year: '연도',
-                label_client: '클라이언트',
-                label_overview: '개요',
-                about_title: '몰입과 정교함으로 디지털 경험을 설계합니다.',
-                about_body: '안녕하세요, 알렉스입니다. 서울을 기반으로 활동하는 디자이너입니다.<br><br>그래픽 디자인의 조형미와 인터페이스의 기능성을 연결하는 작업에 집중하고 있습니다.',
+                label_overview: '프로젝트 개요',
+                btn_back: '목록으로 돌아가기',
+                section_reel: '쇼릴 영상',
                 contact_title: '프로젝트 의뢰하기',
-                guestbook_title: '방명록',
-                guestbook_desc: '자유롭게 메시지나 피드백을 남겨주세요.'
+                contact_email: '이메일',
+                contact_phone: '전화번호',
+                contact_studio: '스튜디오',
             },
             en: {
                 menu_work: 'Work',
                 menu_study: 'Study',
                 menu_about: 'About',
                 menu_contact: 'Contact',
-                menu_guestbook: 'Guestbook',
-                menu_all_projects: 'All Projects',
-                title_work: 'Selected Work',
-                desc_work: 'A collection of recent design projects.',
-                btn_back: 'Back to list',
+                menu_all: 'All Projects',
+                title_selected: 'Selected Work',
+                desc_selected: 'A collection of recent design projects.',
                 label_year: 'Year',
-                label_client: 'Client',
                 label_overview: 'Overview',
-                about_title: 'Designing digital experiences with focus and precision.',
-                about_body: 'Hello, I\'m Alex. A multidisciplinary designer based in Seoul.<br><br>I bridge the gap between aesthetic beauty and functional usability.',
-                contact_title: "Let's work together.",
-                guestbook_title: 'Guestbook',
-                guestbook_desc: 'Leave a message or feedback below.'
+                btn_back: 'Back to list',
+                section_reel: 'Featured Reel',
+                contact_title: 'Let\'s work together.',
+                contact_email: 'Email',
+                contact_phone: 'Phone',
+                contact_studio: 'Studio',
             }
         };
 
-        // =========================================================================
-        // [시스템 로직]
-        // =========================================================================
 
-        let state = {
-            lang: 'ko',          // 현재 언어 ('ko' 또는 'en')
-            section: 'Work',     // 현재 섹션
-            category: 'All',     // 현재 카테고리 (Work일 때)
-            project: null        // 현재 보고 있는 상세 프로젝트 (없으면 null)
-        };
-
-        const contentArea = document.getElementById('content-area');
-
-        // [초기화]
-        function init() {
-            renderSidebar();
-            renderContent();
-            setupMobileMenu();
-            lucide.createIcons();
-        }
-
-        // [상태 변경 및 네비게이션]
-        function navigate(section, category = 'All') {
-            state.section = section;
-            state.project = null; // 상세페이지 닫기
-            if (section === 'Work') state.category = category;
-            
-            renderSidebar(); 
-            renderContent(); 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            // 모바일 메뉴 닫기
-            document.getElementById('sidebar').classList.add('-translate-x-full');
-            document.getElementById('mobile-overlay').classList.add('hidden');
-        }
-
-        function setLanguage(lang) {
-            state.lang = lang;
-            updateUIText();
-            renderSidebar(); 
-            renderContent(); 
-        }
-
-        function openProject(projectId) {
-            const project = PROJECTS.find(p => p.id === projectId);
-            if (project) {
-                state.project = project;
-                renderContent();
-            }
-        }
-
-        // [Lightbox 로직]
-        function openLightbox(src) {
-            const lb = document.getElementById('lightbox');
-            const img = document.getElementById('lightbox-img');
-            img.src = src;
-            lb.classList.remove('hidden');
-            // 애니메이션을 위해 약간의 지연 후 스케일 원복
-            setTimeout(() => {
-                img.classList.remove('scale-95');
-                img.classList.add('scale-100');
-            }, 10);
-        }
+        /***********************************************************************
+         *  [2] 시스템 구역 (System Zone) - 여기부터는 코드 영역입니다.
+         ***********************************************************************/
         
-        function closeLightbox() {
-            const lb = document.getElementById('lightbox');
-            const img = document.getElementById('lightbox-img');
-            img.classList.remove('scale-100');
-            img.classList.add('scale-95');
-            lb.classList.add('hidden');
-        }
+        const { useState, useEffect, useRef } = React;
 
-        // [렌더링: 본문]
-        function renderContent() {
-            const t = TRANSLATIONS[state.lang];
-            let html = '';
+        // [아이콘 컴포넌트 (Inline SVG)]
+        const Icons = {
+            Menu: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
+            X: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            ChevronDown: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>,
+            ChevronRight: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
+            ArrowUpRight: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>,
+            ArrowLeft: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>,
+            Github: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4c0-1.5-.9-2.5-2-3.14 3-.3 6-1.5 6-6.1 0-1.4-.5-2.5-1.1-3.3.1-.3.5-1.4-.1-3.3 0 0-1.1-.4-3.5 1.2a12.3 12.3 0 0 0-6.4 0C3.5 1.4 2.4 1.8 2.4 1.8c-.6 1.9-.2 3 .1 3.3-.6.8-1.1 1.9-1.1 3.3 0 4.6 3 5.7 6 6.1-1.1.7-1.7 1.8-1.7 3.5v4.5"/><path d="M9 19c-4.3 1.7-6.4-1.5-6.4-1.5"/></svg>,
+            Twitter: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>,
+            Linkedin: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>,
+            Instagram: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>,
+            Mail: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
+            Phone: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+            MapPin: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        };
 
-            // 1. 상세 페이지 보기 모드 (Content Logic Updated)
-            if (state.project) {
-                const p = state.project;
-                
-                // Content가 있으면 사용하고, 없으면 desc를 사용하여 기본 텍스트 블록 생성
-                let contentData = p[`content_${state.lang}`];
-                if (!contentData) {
-                    contentData = [{ type: 'text', value: p[`desc_${state.lang}`] }];
+        // --- 컴포넌트: 라이트박스 ---
+        const Lightbox = ({ isOpen, imageSrc, onClose }) => {
+            const [isVisible, setIsVisible] = useState(false);
+            useEffect(() => {
+                if (isOpen) {
+                    setIsVisible(true);
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    const timer = setTimeout(() => setIsVisible(false), 300);
+                    document.body.style.overflow = '';
+                    return () => clearTimeout(timer);
                 }
+            }, [isOpen]);
 
-                // Content 블록 렌더링
-                let contentHtml = contentData.map(block => {
-                    if (block.type === 'text') {
-                        return `<p class="text-secondary text-lg leading-relaxed whitespace-pre-line mb-8">${block.value}</p>`;
-                    } else if (block.type === 'image') {
-                        return `
-                            <div class="rounded-lg overflow-hidden bg-neutral-900 border border-neutral-800 mb-8 group">
-                                <img src="${block.value}" 
-                                     class="w-full h-auto object-cover img-hover-zoom cursor-zoom-in" 
-                                     onclick="openLightbox(this.src)" 
-                                     loading="lazy" 
-                                     alt="Project detail">
-                            </div>
-                        `;
-                    }
-                }).join('');
+            if (!isVisible && !isOpen) return null;
+
+            return (
+                <div 
+                    className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-500 ease-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+                    onClick={onClose}
+                >
+                    <button 
+                        onClick={onClose}
+                        className="absolute top-6 right-6 text-white hover:text-gray-300 p-2 rounded-full bg-white/10 transition-colors z-[110]"
+                    >
+                        <Icons.X width={32} height={32} />
+                    </button>
+                    {imageSrc && (
+                        <img 
+                            src={imageSrc} 
+                            alt="Full view" 
+                            className={`max-w-full max-h-[90vh] object-contain shadow-2xl transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-4'}`}
+                            onClick={(e) => e.stopPropagation()} 
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        // --- 컴포넌트: 비디오 섹션 ---
+        const VideoSection = ({ title }) => (
+            <div className="w-full mb-12 animate-fade-in-up">
+                <h3 className="text-xl text-white font-medium mb-4">{title}</h3>
+                <div className="relative w-full aspect-video rounded-xl bg-neutral-800 border border-neutral-800 shadow-2xl img-card-container">
+                    <iframe
+                        className="absolute top-0 left-0 w-full h-full rounded-xl"
+                        src={`https://www.youtube.com/embed/${COMMON_PROFILE.youtubeVideoId}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    ></iframe>
+                </div>
+            </div>
+        );
+
+        // --- 컴포넌트: 프로젝트 목록 ---
+        const PortfolioGrid = ({ items, category, onItemClick, t }) => {
+            const containerRef = useRef(null);
+            
+            const filteredItems = category === 'All' 
+                ? items 
+                : items.filter(item => item.category === category);
+
+            // Intersection Observer (스크롤 애니메이션)
+            useEffect(() => {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('is-visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    },
+                    { threshold: 0.1, rootMargin: '50px' }
+                );
                 
-                html = `
-                    <div class="animate-fade-in-up pb-20">
-                        <button onclick="navigate('Work', '${state.category}')" class="group flex items-center text-secondary hover:text-white transition-colors mb-8">
-                            <i data-lucide="arrow-left" class="mr-2 w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
-                            <span class="text-sm font-medium uppercase tracking-wide">${t.btn_back}</span>
-                        </button>
-                        
-                        <header class="mb-12 border-b border-neutral-800 pb-8">
-                            <h1 class="text-4xl md:text-5xl font-light text-white mb-2 tracking-tight">${p.title}</h1>
-                            <span class="text-accent text-sm font-bold uppercase tracking-wider">${p.category}</span>
-                            <div class="mt-6 flex space-x-12 text-sm">
-                                <div><span class="block text-neutral-500 uppercase text-[10px] tracking-widest mb-1">${t.label_year}</span><span class="text-white">${p.year}</span></div>
-                                ${p.client ? `<div><span class="block text-neutral-500 uppercase text-[10px] tracking-widest mb-1">${t.label_client}</span><span class="text-white">${p.client}</span></div>` : ''}
-                            </div>
-                        </header>
+                setTimeout(() => {
+                    const elements = containerRef.current?.querySelectorAll('.reveal-on-scroll');
+                    elements?.forEach(el => observer.observe(el));
+                }, 100);
 
-                        <div class="space-y-12">
-                            <!-- Hero Image -->
-                            <div class="w-full rounded-lg overflow-hidden bg-neutral-900 border border-neutral-800">
-                                <img src="${p.image}" alt="${p.title}" 
-                                     class="w-full h-auto max-h-[80vh] object-contain cursor-zoom-in img-hover-zoom"
-                                     onclick="openLightbox(this.src)">
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                                <div class="md:col-span-4"><h3 class="text-white font-medium mb-2">${t.label_overview}</h3><div class="h-0.5 w-12 bg-accent mb-4"></div></div>
-                                <div class="md:col-span-8">
-                                    ${contentHtml}
-                                </div>
-                            </div>
-                        </div>
+                return () => observer.disconnect();
+            }, [filteredItems]);
+
+            return (
+                <div ref={containerRef} className="w-full min-h-[50vh]">
+                    <div className="mb-8 reveal-on-scroll">
+                        <h2 className="text-3xl font-light text-white mb-2">
+                            {category === 'All' ? t.title_selected : category}
+                        </h2>
+                        <p className="text-secondary font-light">
+                            {category === 'All' ? t.desc_selected : category}
+                        </p>
                     </div>
-                `;
-            } 
-            // 2. 섹션별 목록 보기 모드
-            else {
-                switch (state.section) {
-                    case 'Work':
-                        const filtered = state.category === 'All' ? PROJECTS : PROJECTS.filter(p => p.category === state.category);
-                        const title = state.category === 'All' ? t.title_work : state.category;
-                        const sub = state.category === 'All' ? t.desc_work : '';
-                        
-                        let gridHtml = filtered.map(item => `
-                            <div onclick="openProject('${item.id}')" class="break-inside-avoid group relative cursor-pointer mb-3 md:mb-6 perspective-1000">
-                                <div class="relative w-full overflow-hidden rounded-lg bg-neutral-800 ${item.heightClass} shadow-lg img-hover-zoom">
-                                    <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover" loading="lazy">
-                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                                        <span class="text-accent text-xs font-bold uppercase tracking-wider mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">${item.category}</span>
-                                        <div class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
-                                            <h3 class="text-white text-lg font-medium leading-tight">${item.title}</h3>
-                                            <i data-lucide="arrow-up-right" class="text-white opacity-75 w-5 h-5"></i>
+
+                    <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+                        {filteredItems.map((item, index) => (
+                            <div 
+                                key={item.id} 
+                                onClick={() => onItemClick(item)}
+                                className="break-inside-avoid group relative cursor-pointer reveal-on-scroll"
+                                style={{ transitionDelay: `${(index % 4) * 100}ms` }}
+                            >
+                                <div className={`relative w-full rounded-lg bg-neutral-800 ${item.heightClass} img-card-container`}>
+                                    <img 
+                                        src={item.imageUrl} 
+                                        alt={item.title} 
+                                        className="w-full h-full object-cover rounded-lg"
+                                        loading="lazy"
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 rounded-lg">
+                                        <span className="text-accent text-xs font-bold uppercase tracking-wider mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                            {item.category}
+                                        </span>
+                                        <div className="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                                            <h3 className="text-white text-lg font-medium leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <Icons.ArrowUpRight className="text-white opacity-90" width={20} height={20} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        `).join('');
+                        ))}
+                    </div>
+                </div>
+            );
+        };
 
-                        html = `
-                            <div class="animate-fade-in-up">
-                                <div class="mb-8">
-                                    <h2 class="text-3xl font-light text-white mb-2">${title}</h2>
-                                    <p class="text-secondary font-light">${sub}</p>
-                                </div>
-                                <div class="columns-2 md:columns-2 lg:columns-3 gap-3 md:gap-6">
-                                    ${filtered.length > 0 ? gridHtml : '<p class="text-secondary py-10">No projects found.</p>'}
+        // --- 컴포넌트: 프로젝트 상세 ---
+        const ProjectDetail = ({ project, onBack, onOpenLightbox, t }) => {
+            useEffect(() => {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }, []);
+
+            return (
+                <div className="w-full animate-fade-in-up pb-20">
+                    <button 
+                        onClick={onBack}
+                        className="group flex items-center text-secondary hover:text-white transition-colors mb-8"
+                    >
+                        <Icons.ArrowLeft width={20} height={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-sm font-medium uppercase tracking-wide">{t.btn_back}</span>
+                    </button>
+
+                    <header className="mb-12">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-neutral-800 pb-8 mb-8">
+                            <div className="mb-6 md:mb-0">
+                                <h1 className="text-4xl md:text-5xl font-light text-white mb-2 tracking-tight">
+                                    {project.title}
+                                </h1>
+                                <span className="text-accent text-sm font-bold uppercase tracking-wider">
+                                    {project.category}
+                                </span>
+                            </div>
+                            <div className="flex space-x-12 text-sm">
+                                <div>
+                                    <span className="block text-neutral-500 uppercase text-[10px] tracking-widest mb-1">{t.label_year}</span>
+                                    <span className="text-white">{project.year}</span>
                                 </div>
                             </div>
-                        `;
-                        break;
+                        </div>
+                    </header>
 
-                    case 'Study':
-                        let listHtml = STUDIES.map(s => `
-                            <div class="group border-b border-neutral-800 pb-6 hover:border-neutral-600 transition-colors cursor-pointer">
-                                <div class="flex flex-col md:flex-row md:items-baseline md:space-x-8">
-                                    <span class="text-sm text-secondary font-mono mb-2 md:mb-0 w-24 flex-shrink-0">${s.year}</span>
-                                    <div>
-                                        <h3 class="text-xl text-white font-medium group-hover:text-accent transition-colors">${s.title}</h3>
-                                        <p class="text-secondary mt-1">${state.lang === 'ko' ? s.desc_ko : s.desc_en}</p>
+                    <div className="space-y-12">
+                        <div 
+                            className="w-full rounded-lg bg-neutral-900 border border-neutral-800 img-card-container cursor-zoom-in"
+                            onClick={() => onOpenLightbox(project.imageUrl)}
+                        >
+                            <img src={project.imageUrl} alt={project.title} className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                            <div className="md:col-span-4">
+                                <h3 className="text-white font-medium mb-2">{t.label_overview}</h3>
+                                <div className="h-0.5 w-12 bg-accent mb-4"></div>
+                            </div>
+                            <div className="md:col-span-8">
+                                <p className="text-secondary text-lg leading-relaxed whitespace-pre-line mb-8">
+                                    {project.description}
+                                </p>
+                                {project.content && project.content.map((block, i) => (
+                                    <div key={i} className="mb-8">
+                                        {block.type === 'text' && (
+                                            <p className="text-secondary text-lg leading-relaxed whitespace-pre-line">{block.value}</p>
+                                        )}
+                                        {block.type === 'image' && (
+                                            <div 
+                                                className="rounded-lg bg-neutral-900 border border-neutral-800 img-card-container cursor-zoom-in mt-4"
+                                                onClick={() => onOpenLightbox(block.value)}
+                                            >
+                                                <img src={block.value} alt="detail" className="w-full h-auto object-cover rounded-lg" />
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+                                ))}
                             </div>
-                        `).join('');
-                        html = `<div class="animate-fade-in-up"><h2 class="text-3xl font-light text-white mb-8">${t.menu_study}</h2><div class="space-y-6">${listHtml}</div></div>`;
-                        break;
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-                    case 'About':
-                        html = `
-                            <div class="max-w-3xl w-full mx-auto space-y-12 animate-fade-in-up">
-                                <section>
-                                    <h2 class="text-4xl font-light text-white mb-6 leading-tight">${t.about_title}</h2>
-                                    <div class="space-y-6 text-lg text-secondary leading-relaxed"><p>${t.about_body}</p></div>
-                                </section>
-                                <div class="border-t border-neutral-800 pt-12">
-                                    <h3 class="text-xl text-white font-medium mb-4">Featured Reel</h3>
-                                    <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-neutral-800 border border-neutral-800 shadow-2xl img-hover-zoom">
-                                        <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/lxRwEPvL-mQ?si=placeholder" title="Reel" frameborder="0" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        break;
-
-                    case 'Contact':
-                        html = `
-                            <div class="max-w-2xl w-full mx-auto animate-fade-in-up">
-                                <h2 class="text-3xl font-light text-white mb-8">${t.contact_title}</h2>
-                                <div class="bg-neutral-900 rounded-xl p-8 border border-neutral-800 space-y-6">
-                                    <div class="flex items-start space-x-4">
-                                        <div class="p-3 bg-neutral-800 rounded-lg text-white"><i data-lucide="mail"></i></div>
-                                        <div><h3 class="text-white font-medium">Email</h3><a href="mailto:hello@alex.design" class="text-accent">hello@alex.design</a></div>
-                                    </div>
-                                    <div class="flex items-start space-x-4">
-                                        <div class="p-3 bg-neutral-800 rounded-lg text-white"><i data-lucide="map-pin"></i></div>
-                                        <div><h3 class="text-white font-medium">Studio</h3><p class="text-secondary">Seoul, Korea</p></div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        break;
-
-                    case 'Guestbook':
-                        html = `
-                            <div class="max-w-3xl w-full mx-auto animate-fade-in-up">
-                                <h2 class="text-3xl font-light text-white mb-8">${t.guestbook_title}</h2>
-                                <div class="bg-neutral-900 rounded-xl p-8 border border-neutral-800 min-h-[400px]">
-                                    <div class="text-center text-secondary mb-8"><p>${t.guestbook_desc}</p></div>
-                                    <div id="giscus-container" class="w-full"></div>
-                                </div>
-                            </div>
-                        `;
-                        setTimeout(() => {
-                            if(document.getElementById('giscus-container') && !document.querySelector('.giscus-frame')) {
-                                // Giscus 스크립트 로직 (필요시 활성화)
-                            }
-                        }, 100);
-                        break;
-                }
-            }
-
-            contentArea.innerHTML = html;
-            lucide.createIcons(); // 아이콘 새로고침
-        }
-
-        // [렌더링: 사이드바 스타일]
-        function renderSidebar() {
-            // 언어 텍스트 업데이트
-            const t = TRANSLATIONS[state.lang];
-            document.querySelectorAll('[data-translate]').forEach(el => {
-                const key = el.getAttribute('data-translate');
-                if (t[key]) el.innerText = t[key];
-            });
-
-            // 메뉴 활성화 스타일
-            document.querySelectorAll('.nav-main, .nav-item').forEach(el => {
-                el.classList.remove('text-white', 'bg-neutral-800');
-                el.classList.add('text-secondary');
-            });
-
-            if (state.section === 'Work') {
-                document.getElementById('btn-work').classList.add('text-white');
-                const catBtn = document.querySelector(`[data-category="${state.category}"]`);
-                if(catBtn) {
-                    catBtn.classList.add('text-white', 'bg-neutral-800');
-                    catBtn.classList.remove('text-secondary');
-                }
-            } else {
-                document.getElementById('btn-work').classList.remove('text-white');
-                document.getElementById('btn-work').classList.add('text-secondary');
-                const btn = document.getElementById(`btn-${state.section.toLowerCase()}`);
-                if(btn) {
-                    btn.classList.add('text-white', 'bg-neutral-800');
-                    btn.classList.remove('text-secondary');
-                }
-            }
-
-            // 언어 버튼 스타일
-            document.getElementById('lang-ko').className = state.lang === 'ko' ? 'text-white font-bold' : 'text-neutral-600 hover:text-white transition-colors';
-            document.getElementById('lang-en').className = state.lang === 'en' ? 'text-white font-bold' : 'text-neutral-600 hover:text-white transition-colors';
-        }
-
-        function updateUIText() {
-            // 사이드바 다시 렌더링으로 해결
-        }
-
-        // [이벤트: 아코디언 토글]
-        let isWorkOpen = true;
-        function toggleWorkMenu() {
-            isWorkOpen = !isWorkOpen;
-            const menu = document.getElementById('work-submenu');
-            const icon = document.getElementById('work-chevron');
-            if (isWorkOpen) {
-                menu.style.maxHeight = '14rem'; // 56 * 4px
-                menu.style.opacity = '1';
-                menu.style.marginTop = '0.25rem';
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                menu.style.maxHeight = '0';
-                menu.style.opacity = '0';
-                menu.style.marginTop = '0';
-                icon.style.transform = 'rotate(-90deg)';
-            }
-        }
-
-        // [이벤트: 모바일 메뉴]
-        function setupMobileMenu() {
-            const btn = document.getElementById('mobile-menu-btn');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
-
-            function toggle() {
-                const isClosed = sidebar.classList.contains('-translate-x-full');
-                if (isClosed) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.remove('hidden');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                }
-            }
+        // --- 메인 앱 ---
+        const App = () => {
+            const [language, setLanguage] = useState('ko'); // 기본 언어: KO
+            const [activeSection, setActiveSection] = useState('Work');
+            const [activeCategory, setActiveCategory] = useState('All');
+            const [selectedProject, setSelectedProject] = useState(null);
+            const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+            const [isWorkOpen, setIsWorkOpen] = useState(true);
             
-            btn.addEventListener('click', toggle);
-            overlay.addEventListener('click', toggle);
-        }
+            // Lightbox
+            const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+            const [lightboxImage, setLightboxImage] = useState(null);
 
-        // 시작
-        init();
+            // 현재 언어 데이터 선택
+            const currentData = language === 'ko' ? DATA_KO : DATA_EN;
+            const t = TRANSLATIONS[language];
 
+            // 모바일 뒤로가기 제어
+            useEffect(() => {
+                const handlePopState = (event) => {
+                    if (isLightboxOpen) {
+                        setIsLightboxOpen(false);
+                    } else if (selectedProject) {
+                        setSelectedProject(null);
+                    }
+                };
+                window.addEventListener('popstate', handlePopState);
+                return () => window.removeEventListener('popstate', handlePopState);
+            }, [isLightboxOpen, selectedProject]);
+
+            const openLightbox = (src) => {
+                window.history.pushState({ modal: true }, '', ''); 
+                setLightboxImage(src);
+                setIsLightboxOpen(true);
+            };
+            const closeLightbox = () => setIsLightboxOpen(false);
+
+            const handleNavigate = (section, category = 'All') => {
+                setActiveSection(section);
+                setSelectedProject(null);
+                if (section === 'Work') setActiveCategory(category);
+                setIsMobileMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const renderContent = () => {
+                if (selectedProject) {
+                    return <ProjectDetail project={selectedProject} onBack={() => setSelectedProject(null)} onOpenLightbox={openLightbox} t={t} />;
+                }
+                
+                switch (activeSection) {
+                    case 'Work':
+                        return <PortfolioGrid items={currentData.projects} category={activeCategory} onItemClick={setSelectedProject} t={t} />;
+                    case 'Study':
+                        return (
+                            <div className="w-full animate-fade-in-up">
+                                <h2 className="text-3xl font-light text-white mb-8">{t.menu_study}</h2>
+                                <div className="space-y-6">
+                                    {currentData.studies.map((study) => (
+                                        <div key={study.id} className="border-b border-neutral-800 pb-6">
+                                            <span className="text-sm text-secondary font-mono block mb-1">{study.year}</span>
+                                            <h3 className="text-xl text-white font-medium mb-1">{study.title}</h3>
+                                            <p className="text-secondary text-sm">{study.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    case 'About':
+                        return (
+                            <div className="max-w-3xl w-full mx-auto space-y-12 animate-fade-in-up">
+                                <section>
+                                    <h2 className="text-4xl font-light text-white mb-6 leading-tight">{currentData.introTitle}</h2>
+                                    <div className="space-y-6 text-lg text-secondary leading-relaxed">
+                                        {currentData.introDesc.map((txt, i) => <p key={i}>{txt}</p>)}
+                                    </div>
+                                </section>
+                                <div className="border-t border-neutral-800 pt-12">
+                                    <VideoSection title={t.section_reel} />
+                                </div>
+                            </div>
+                        );
+                    case 'Contact':
+                        return (
+                            <div className="max-w-2xl w-full mx-auto animate-fade-in-up">
+                                <h2 className="text-3xl font-light text-white mb-8">{t.menu_contact}</h2>
+                                <div className="bg-neutral-900 rounded-xl p-8 border border-neutral-800 space-y-6">
+                                    <div className="flex items-start space-x-4">
+                                        <Icons.Mail className="text-secondary" width={24} height={24} />
+                                        <div>
+                                            <h3 className="text-white font-medium">{t.contact_email}</h3>
+                                            <a href={`mailto:${COMMON_PROFILE.email}`} className="text-accent hover:underline">{COMMON_PROFILE.email}</a>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start space-x-4">
+                                        <Icons.Phone className="text-secondary" width={24} height={24} />
+                                        <div>
+                                            <h3 className="text-white font-medium">{t.contact_phone}</h3>
+                                            <p className="text-secondary">{COMMON_PROFILE.phone}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start space-x-4">
+                                        <Icons.MapPin className="text-secondary" width={24} height={24} />
+                                        <div>
+                                            <h3 className="text-white font-medium">{t.contact_studio}</h3>
+                                            <p className="text-secondary">{COMMON_PROFILE.address}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    default: return null;
+                }
+            };
+
+            const linkClass = (isActive) => 
+                `block w-full text-left py-2 px-4 rounded-md text-sm transition-colors ${isActive ? 'text-white bg-neutral-800' : 'text-secondary hover:text-white'}`;
+
+            return (
+                <div className="flex min-h-screen">
+                    {/* 모바일 메뉴 토글 */}
+                    <button 
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="fixed top-4 right-4 z-50 md:hidden p-2 bg-neutral-800 rounded-full text-white shadow-lg"
+                    >
+                        {isMobileMenuOpen ? <Icons.X width={24} height={24} /> : <Icons.Menu width={24} height={24} />}
+                    </button>
+
+                    {/* 사이드바 */}
+                    <nav className={`fixed inset-y-0 left-0 z-40 w-64 bg-background border-r border-neutral-800 transform transition-transform duration-300 md:translate-x-0 md:static md:h-screen md:flex md:flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                        <div className="p-8 pb-4">
+                            <h1 className="text-2xl font-bold tracking-tighter text-white mb-1">{COMMON_PROFILE.name}</h1>
+                            <p className="text-xs text-secondary uppercase tracking-widest">{COMMON_PROFILE.role}</p>
+                        </div>
+                        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+                            {/* Work 메뉴 */}
+                            <div className="mb-4">
+                                <button 
+                                    onClick={() => setIsWorkOpen(!isWorkOpen)}
+                                    className="w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white flex items-center justify-between"
+                                >
+                                    <span className="font-bold text-xs text-neutral-500 uppercase">{t.menu_work}</span>
+                                    {isWorkOpen ? <Icons.ChevronDown width={14} /> : <Icons.ChevronRight width={14} />}
+                                </button>
+                                
+                                {isWorkOpen && (
+                                    <div className="pl-2 space-y-1 mt-1">
+                                        <button onClick={() => handleNavigate('Work', 'All')} className={linkClass(activeSection === 'Work' && activeCategory === 'All')}>{t.menu_all}</button>
+                                        {/* 카테고리는 언어별 데이터에서 추출 */}
+                                        {[...new Set(currentData.projects.map(p => p.category))].map(cat => (
+                                            <button key={cat} onClick={() => handleNavigate('Work', cat)} className={linkClass(activeSection === 'Work' && activeCategory === cat)}>
+                                                {cat}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* 기타 메뉴 */}
+                            <div>
+                                <p className="px-4 text-xs font-bold text-neutral-500 uppercase mb-2 mt-6">Menu</p>
+                                <button onClick={() => handleNavigate('Study')} className={linkClass(activeSection === 'Study')}>{t.menu_study}</button>
+                                <button onClick={() => handleNavigate('About')} className={linkClass(activeSection === 'About')}>{t.menu_about}</button>
+                                <button onClick={() => handleNavigate('Contact')} className={linkClass(activeSection === 'Contact')}>{t.menu_contact}</button>
+                            </div>
+                        </div>
+
+                        {/* 언어 선택 및 소셜 링크 */}
+                        <div className="p-8 border-t border-neutral-800">
+                             {/* 언어 토글 */}
+                            <div className="flex items-center space-x-3 mb-6 text-sm font-medium">
+                                <button 
+                                    onClick={() => setLanguage('ko')}
+                                    className={`${language === 'ko' ? 'text-white' : 'text-neutral-600 hover:text-neutral-400'} transition-colors`}
+                                >
+                                    KO
+                                </button>
+                                <span className="text-neutral-700">|</span>
+                                <button 
+                                    onClick={() => setLanguage('en')}
+                                    className={`${language === 'en' ? 'text-white' : 'text-neutral-600 hover:text-neutral-400'} transition-colors`}
+                                >
+                                    EN
+                                </button>
+                            </div>
+
+                            <div className="flex space-x-4">
+                                {COMMON_PROFILE.social.github && <a href={COMMON_PROFILE.social.github} target="_blank" className="text-secondary hover:text-white"><Icons.Github width={20} /></a>}
+                                {COMMON_PROFILE.social.linkedin && <a href={COMMON_PROFILE.social.linkedin} target="_blank" className="text-secondary hover:text-white"><Icons.Linkedin width={20} /></a>}
+                                {COMMON_PROFILE.social.twitter && <a href={COMMON_PROFILE.social.twitter} target="_blank" className="text-secondary hover:text-white"><Icons.Twitter width={20} /></a>}
+                                {COMMON_PROFILE.social.instagram && <a href={COMMON_PROFILE.social.instagram} target="_blank" className="text-secondary hover:text-white"><Icons.Instagram width={20} /></a>}
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* 콘텐츠 메인 */}
+                    <main className="flex-1 w-full md:ml-0 min-h-screen">
+                        <div className="p-6 md:p-12 lg:p-16 max-w-7xl mx-auto pt-20 md:pt-16">
+                            {renderContent()}
+                        </div>
+                    </main>
+
+                    {/* 라이트박스 */}
+                    <Lightbox isOpen={isLightboxOpen} imageSrc={lightboxImage} onClose={closeLightbox} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
