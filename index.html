@@ -1,759 +1,1371 @@
 <!DOCTYPE html>
-<html lang="ko" class="dark">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Designer Portfolio</title>
+    <title>Thinking & Building</title>
     
-    <!-- [1. 라이브러리 로드] -->
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel (JSX 변환용) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <!-- [2. 폰트 및 테마 설정] -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script>
-        // ▼ [테마 컬러 수정]
-        const accentColor = '#3b82f6'; // 강조색 (기본: 파란색)
-
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        background: '#0a0a0a', // 배경색
-                        surface: '#171717',    // 카드 배경
-                        primary: '#ffffff',    // 메인 글자
-                        secondary: '#a3a3a3',  // 보조 글자
-                        accent: accentColor,
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- [3. CSS 스타일 & 애니메이션] -->
     <style>
-        body { background-color: #0a0a0a; color: #ffffff; }
-        
-        /* 스크롤바 디자인 */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* --- Reset & Variables --- */
+        :root {
+            --bg-color: #F9F9F9;
+            --text-color: #111111;
+            --accent-color: #555555;
+            --border-color: #E0E0E0;
+            --font-serif: 'Noto Serif KR', serif;
+            --font-sans: 'Inter', sans-serif;
+            --padding-x: 4vw;
+            
+            /* Cinematic Easing */
+            --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+            --anim-duration: 1.4s;
+        }
 
-        /* 애니메이션: 페이드 인 업 */
-        @keyframes fade-in-up {
-            from { opacity: 0; transform: translateY(20px); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        li { list-style: none; }
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        button { background: none; border: none; cursor: pointer; color: inherit; font-family: inherit; }
+        input { border: none; outline: none; background: none; font-family: inherit; color: inherit; }
+
+        html { font-size: 16px; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Typography Utilities --- */
+        .serif { font-family: var(--font-serif); }
+        .sans { font-family: var(--font-sans); }
+
+        /* --- Animations Utilities --- */
+        @keyframes cinematicFadeUp {
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* 애니메이션: 스크롤 리빌 */
-        .reveal-on-scroll {
+        .animate-init {
+            opacity: 0;
+            animation: cinematicFadeUp var(--anim-duration) var(--ease-cinematic) forwards;
+        }
+        
+        .js-animate { opacity: 0; }
+
+        .delay-0 { animation-delay: 0.1s; }
+        .delay-1 { animation-delay: 0.3s; }
+        .delay-2 { animation-delay: 0.5s; }
+
+        /* --- Intro Loader --- */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 1.2s var(--ease-cinematic);
+        }
+        
+        #loader.hidden {
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+
+        .loader-content {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        .l-text {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 700;
             opacity: 0;
             transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-            will-change: opacity, transform;
+            animation: textReveal 1s var(--ease-cinematic) forwards;
         }
-        .reveal-on-scroll.is-visible {
+
+        .l-2 {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            font-size: 1.8rem;
+            margin-top: 10px;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes textReveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Header (Glassmorphism) --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 80px;
+            padding: 0 var(--padding-x);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+            
+            background: rgba(249, 249, 249, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            color: var(--text-color);
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 102;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Language Switcher */
+        .lang-switch {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            z-index: 102;
+            display: flex;
+            gap: 8px;
+        }
+        .lang-opt {
+            color: #999;
+            transition: color 0.3s;
+        }
+        .lang-opt.active {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        .lang-opt:hover {
+            color: var(--text-color);
+        }
+
+        .menu-trigger {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            z-index: 102;
+            transition: opacity 0.3s;
+        }
+
+        /* --- Full Screen Menu Overlay --- */
+        .menu-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 101;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s var(--ease-cinematic);
+        }
+
+        .menu-overlay.active {
             opacity: 1;
+            pointer-events: all;
+        }
+
+        .menu-nav { text-align: center; }
+        .menu-item { overflow: hidden; margin-bottom: 1.5rem; }
+        
+        .menu-link {
+            display: block;
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            color: var(--text-color);
+            transform: translateY(100%);
+            transition: transform 0.8s var(--ease-cinematic);
+            position: relative;
+        }
+
+        /* Active Menu State */
+        .menu-link.active-link {
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 8px;
+            color: var(--text-color);
+        }
+
+        .menu-overlay.active .menu-link { transform: translateY(0); }
+        .menu-overlay.active .menu-item:nth-child(1) .menu-link { transition-delay: 0.1s; }
+        .menu-overlay.active .menu-item:nth-child(2) .menu-link { transition-delay: 0.2s; }
+        .menu-overlay.active .menu-item:nth-child(3) .menu-link { transition-delay: 0.3s; }
+        .menu-overlay.active .menu-item:nth-child(4) .menu-link { transition-delay: 0.4s; }
+
+        .menu-sns {
+            margin-top: 3rem;
+            display: flex; gap: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s var(--ease-cinematic);
+        }
+        .menu-overlay.active .menu-sns {
+            opacity: 1; transform: translateY(0); transition-delay: 0.6s;
+        }
+
+        /* --- Detail View Overlay --- */
+        #project-detail-view {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            z-index: 200;
+            overflow-y: auto;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease, transform 0.5s var(--ease-cinematic);
+            padding: 0;
+        }
+
+        #project-detail-view.active {
+            opacity: 1;
+            pointer-events: all;
             transform: translateY(0);
         }
 
-        /* 카드 효과 */
-        .img-card-container {
-            transition: box-shadow 0.4s ease, transform 0.4s ease;
-            overflow: hidden;
-            z-index: 1;
+        .detail-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--padding-x);
+            z-index: 210;
+            background: rgba(249, 249, 249, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-        .img-card-container:hover {
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            transform: translateY(-4px);
+
+        .detail-back-btn {
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+        .detail-back-btn:hover { color: var(--accent-color); }
+        .detail-back-btn span:first-child { font-size: 1.2em; line-height: 1; }
+
+        #detail-content-wrapper { padding: 40px var(--padding-x) 100px; }
+
+        .d-header { margin-bottom: 60px; border-bottom: 1px solid var(--border-color); padding-bottom: 40px; }
+        .d-meta { display: flex; gap: 20px; color: var(--accent-color); font-family: var(--font-sans); margin-bottom: 20px; font-size: 0.9rem; }
+        .d-title { font-family: var(--font-serif); font-size: 3rem; line-height: 1.2; margin-bottom: 30px; }
+        .d-desc { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.6; max-width: 800px; color: var(--text-color); }
+        .d-content-block { max-width: 800px; margin-bottom: 40px; }
+        .d-text { font-family: var(--font-sans); font-size: 1.05rem; line-height: 1.8; color: #333; white-space: pre-line; }
+        .d-image-figure { width: 100%; margin: 40px 0; }
+        .d-image { width: 100%; height: auto; border-radius: 4px; display: block; }
+        .d-caption { display: block; margin-top: 10px; font-family: var(--font-sans); font-size: 0.8rem; color: var(--accent-color); text-align: center; }
+        .d-video, .d-video-iframe { width: 100%; height: auto; aspect-ratio: 16/9; margin: 40px 0; background: #000; border: none; display: block; }
+
+        /* --- Main SPA Layout --- */
+        main { padding: 0 var(--padding-x); min-height: 100vh; }
+        
+        .spa-view {
+            display: none; /* Default hidden */
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            padding-top: 120px; /* Space for fixed header */
+            padding-bottom: 100px;
+        }
+        
+        .spa-view.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Specific View Adjustments */
+        #home-section {
+            padding-top: 0; /* Hero needs to be centered vertically, handled by .hero class */
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 90vh; width: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            padding-top: 80px;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 8vw;
+            line-height: 1.1;
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+        }
+        .hero-title span { display: block; }
+        .ampersand { font-family: var(--font-sans); font-weight: 300; font-style: italic; color: var(--accent-color); font-size: 0.8em; display: inline-block; transform: translateY(-1vw); }
+        .hero-desc { font-family: var(--font-sans); font-size: 1.1rem; color: var(--accent-color); max-width: 600px; letter-spacing: 0.02em; }
+        
+        /* Hero Navigation */
+        .hero-nav {
+            margin-top: 40px;
+            display: flex;
+            gap: 24px;
+        }
+        .hero-nav-btn {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--text-color);
+            border-bottom: 1px solid transparent;
+            padding-bottom: 2px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .hero-nav-btn:hover {
+            border-bottom-color: var(--text-color);
+            color: var(--accent-color);
+        }
+
+        /* Project List Section */
+        .project-list-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 60px; padding-bottom: 20px;
+            border-bottom: 1px solid var(--text-color);
+            flex-wrap: wrap; gap: 20px;
+        }
+
+        .section-title { font-family: var(--font-serif); font-size: 2rem; font-weight: 400; }
+        .controls-wrapper { display: flex; align-items: center; gap: 30px; }
+        .filter-group { display: flex; gap: 10px; }
+
+        /* Unified Filter Buttons */
+        .filter-btn {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0 22px; /* Generous horizontal padding */
+            height: 40px; /* Fixed height for consistency */
+            line-height: 1.2;
+            border: 1px solid var(--text-color);
+            border-radius: 50px;
+            transition: all 0.3s var(--ease-cinematic);
+            background: transparent;
+            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .filter-btn:hover, .filter-btn.active { background-color: var(--text-color); color: var(--bg-color); }
+
+        .search-wrapper { position: relative; display: flex; align-items: center; }
+        .search-input {
+            font-size: 0.9rem; border-bottom: 1px solid var(--text-color);
+            padding: 5px 0; width: 200px; transition: width 0.3s ease;
+        }
+        .search-input::placeholder { color: #999; font-weight: 300; }
+        .search-input:focus { width: 250px; }
+
+        .project-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            column-gap: 40px; row-gap: 80px;
+            transition: opacity 0.3s; min-height: 200px;
+        }
+        .project-grid:hover .project-item { opacity: 0.3; }
+        .project-grid .project-item:hover { opacity: 1; transform: translateY(-10px); }
+
+        .project-item {
+            display: flex; flex-direction: column;
+            border-top: 1px solid var(--text-color); padding-top: 24px;
+            opacity: 0; transition: opacity 0.4s ease, transform 0.6s var(--ease-cinematic);
+            cursor: pointer;
+            position: relative; /* For mobile thumb context */
+        }
+
+        .p-meta {
+            font-family: var(--font-sans); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--accent-color); margin-bottom: 12px;
+            display: flex; justify-content: space-between;
+        }
+        .p-title { font-family: var(--font-serif); font-size: 2rem; font-weight: 400; margin-bottom: 8px; line-height: 1.2; }
+        .p-desc { font-family: var(--font-sans); font-size: 1rem; color: var(--accent-color); max-width: 90%; line-height: 1.5; }
+        
+        .p-tags { margin-bottom: 16px; display: flex; flex-wrap: wrap; row-gap: 6px; }
+        /* Unified Tag Styling */
+        .p-tag { 
+            font-family: var(--font-sans); 
+            font-size: 0.75rem; 
+            color: #888; 
+            white-space: nowrap; 
+            line-height: 1.4; 
+            padding: 4px 0; 
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        /* Mobile specific Thumbnail in List */
+        .p-mobile-thumb {
+            display: none; width: 100%; height: auto; margin-top: 20px; border-radius: 4px;
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .project-item.mobile-active .p-mobile-thumb { display: block; opacity: 1; }
+
+        /* Floating Cursor Follower (PC) */
+        #cursor-follower {
+            position: fixed;
+            top: 0; left: 0;
+            width: 320px; height: 220px;
+            pointer-events: none;
+            z-index: 150;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        #cursor-follower.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        #cursor-follower img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- About Section (CV Style) --- */
+        .about-container { max-width: 1000px; }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 40px; }
+        
+        .about-bio-wrap { margin-bottom: 40px; }
+        .about-bio { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.6; color: var(--text-color); }
+        
+        .resume-section { margin-bottom: 50px; }
+        .resume-header { font-family: var(--font-sans); font-size: 0.85rem; text-transform: uppercase; color: var(--accent-color); margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        
+        .resume-list { display: flex; flex-direction: column; gap: 24px; }
+        .resume-item { display: grid; grid-template-columns: 100px 1fr; gap: 20px; }
+        .r-year { font-family: var(--font-sans); font-size: 0.95rem; color: var(--accent-color); font-weight: 500; }
+        .r-role { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 500; line-height: 1.3; }
+        .r-company { display: block; font-family: var(--font-sans); font-size: 0.9rem; color: #888; margin-top: 4px; }
+
+        .skill-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill-tag { border: 1px solid var(--border-color); padding: 8px 18px; border-radius: 50px; font-size: 0.9rem; font-family: var(--font-sans); color: var(--accent-color); background: #fff; }
+
+        /* --- Contact Section --- */
+        .contact-container { min-height: 50vh; display: flex; flex-direction: column; justify-content: center; }
+        .contact-label { font-family: var(--font-sans); font-size: 0.9rem; color: var(--accent-color); margin-bottom: 20px; }
+        
+        .contact-email { 
+            font-family: var(--font-serif); font-size: 5.5vw; line-height: 1.1; 
+            color: var(--text-color); border-bottom: 2px solid transparent; 
+            transition: border-color 0.3s; display: inline-block; margin-bottom: 80px; 
+            word-break: break-all;
+        }
+        .contact-email:hover { border-bottom-color: var(--text-color); }
+
+        .contact-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 600px; }
+        .info-item h4 { font-family: var(--font-sans); font-size: 0.85rem; text-transform: uppercase; color: #999; margin-bottom: 10px; }
+        .info-item p, .info-item a { font-family: var(--font-serif); font-size: 1.1rem; display: block; margin-bottom: 6px; }
+        .social-link { transition: color 0.3s; }
+        .social-link:hover { color: var(--accent-color); }
+
+        /* --- Footer --- */
+        footer {
+            padding: 40px var(--padding-x); border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--accent-color);
+            position: relative;
             z-index: 10;
         }
-        .img-card-container img {
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            will-change: transform;
-        }
-        .img-card-container:active img {
-            transform: scale(0.96); /* 클릭 시 눌리는 효과 */
-            transition: transform 0.1s ease-out;
+
+        @media (max-width: 768px) {
+            /* Mobile Header Optimization */
+            header { padding: 0 5vw; }
+            .logo { font-size: 1rem; }
+            
+            .hero-title { font-size: 13vw; }
+            .hero-desc { font-size: 1rem; max-width: 90%; }
+            .hero-nav { flex-direction: column; gap: 16px; align-items: flex-start; }
+            
+            .project-list-header { flex-direction: column; align-items: flex-start; }
+            .controls-wrapper { flex-direction: column; align-items: flex-start; width: 100%; gap: 20px; }
+            
+            /* Mobile Filter Wrap (Changed from Scroll) */
+            .filter-group { 
+                width: 100%; 
+                display: flex; 
+                flex-wrap: wrap; /* Wraps items */
+                gap: 10px; /* Spacing between rows/cols */
+            }
+            .filter-group::-webkit-scrollbar { display: none; } /* Clean up just in case */
+            
+            /* Mobile Button Adjustment */
+            .filter-btn { 
+                padding: 0 18px; 
+                height: 34px; /* Slightly compact for mobile */
+                font-size: 0.85rem; 
+                flex: 0 0 auto; /* Prevent shrinking */
+            }
+
+            .search-input { width: 100%; } .search-input:focus { width: 100%; }
+            .project-grid { grid-template-columns: 1fr; row-gap: 60px; }
+            .p-title { font-size: 1.75rem; }
+            .d-title { font-size: 2rem; }
+            
+            .l-text { font-size: 2rem; }
+            .l-2 { font-size: 1.5rem; }
+
+            #detail-content-wrapper { padding: 30px 5vw 100px; }
+            
+            .about-grid { grid-template-columns: 1fr; gap: 40px; }
+            .resume-item { grid-template-columns: 80px 1fr; }
+            .contact-email { font-size: 10vw; margin-bottom: 40px; }
+            .contact-info-grid { grid-template-columns: 1fr; gap: 30px; }
+            
+            /* Disable floating cursor on mobile explicitly to save resources */
+            #cursor-follower { display: none; }
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
 </head>
-<body class="bg-background text-primary selection:bg-accent selection:text-white">
+<body>
+
+    <!-- Intro Loader -->
+    <div id="loader">
+        <div class="loader-content">
+            <span class="l-text l-1">Thinking</span>
+            <span class="l-text l-2">& Building</span>
+        </div>
+    </div>
     
-    <div id="root"></div>
+    <!-- Cursor Follower for PC -->
+    <div id="cursor-follower">
+        <img src="" alt="Project Preview">
+    </div>
 
-    <script type="text/babel">
-        /***********************************************************************
-         *  [1] 설정 구역 (Config Zone) - 여기만 수정하세요!
-         ***********************************************************************/
+    <!-- Header -->
+    <header>
+        <a href="#" class="logo" id="logoBtn">Thinking & Building</a>
+        <div class="header-controls">
+            <!-- Language Toggle -->
+            <div class="lang-switch" id="langSwitch">
+                <span class="lang-opt active" data-lang="ko">KR</span>
+                <span>/</span>
+                <span class="lang-opt" data-lang="en">EN</span>
+            </div>
+            <button class="menu-trigger" id="menuBtn">Menu</button>
+        </div>
+    </header>
 
-        // 1. 기본 정보 (공통)
-        const COMMON_PROFILE = {
-            name: "Alex Designer",
-            role: "Portfolio 2024",
-            email: "hello@alex.design",
-            phone: "+82 10 1234 5678",
-            address: "Gangnam-gu, Seoul",
-            social: {
-                github: "https://github.com",
-                twitter: "https://twitter.com",
-                linkedin: "https://linkedin.com",
-                instagram: "https://instagram.com"
-            },
-            youtubeVideoId: "lxRwEPvL-mQ" // 메인 쇼릴 유튜브 ID
-        };
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay">
+        <nav class="menu-nav">
+            <div class="menu-item"><a href="#" class="menu-link active-link" data-target="home-section">Home</a></div>
+            <div class="menu-item"><a href="#" class="menu-link" data-target="work-section">Work</a></div>
+            <div class="menu-item"><a href="#" class="menu-link" data-target="about-section">About</a></div>
+            <div class="menu-item"><a href="#" class="menu-link" data-target="contact-section">Contact</a></div>
+        </nav>
+        <div class="menu-sns">
+            <a href="#" class="sans">Twitter</a>
+            <a href="#" class="sans">LinkedIn</a>
+        </div>
+    </div>
 
-        // 2. 한국어 데이터 (KO)
-        const DATA_KO = {
-            introTitle: "몰입과 정교함으로 디지털 경험을 설계합니다.",
-            introDesc: [
-                "안녕하세요, 알렉스입니다. 서울을 기반으로 활동하는 디자이너입니다. 그래픽 디자인의 조형미와 인터페이스의 기능성을 연결하는 작업에 집중하고 있습니다.",
-                "지난 5년여간 스타트업 및 브랜드와 협업하며, 복잡한 디지털 환경에서도 돋보이는 웹사이트와 아이덴티티를 구축해왔습니다."
-            ],
-            // 프로젝트 목록
-            projects: [
-                {
-                    id: 1,
-                    title: "미니멀리스트 브랜드 아이덴티티",
-                    category: "Branding",
-                    year: "2023",
-                    imageUrl: "https://picsum.photos/600/800?random=1",
-                    heightClass: "aspect-[3/4]",
-                    description: "디지털 인터페이스와 인간의 지각 사이의 관계를 탐구한 프로젝트입니다.",
-                    content: [
-                        { type: 'text', value: "브랜드의 핵심 가치를 시각화하기 위해 불필요한 장식을 배제하고 본질에 집중했습니다." },
-                        { type: 'image', value: "https://picsum.photos/800/600?random=101" },
-                        { type: 'text', value: "사용자 경험을 고려하여 타이포그래피의 가독성을 최우선으로 두었습니다." }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: "핀테크 대시보드",
-                    category: "UI/UX",
-                    year: "2024",
-                    imageUrl: "https://picsum.photos/800/600?random=2",
-                    heightClass: "aspect-video",
-                    description: "금융 데이터를 직관적으로 보여주는 대시보드 디자인입니다."
-                },
-                {
-                    id: 3,
-                    title: "타이포그래피 포스터",
-                    category: "Graphic",
-                    year: "2022",
-                    imageUrl: "https://picsum.photos/600/900?random=3",
-                    heightClass: "aspect-[2/3]",
-                    description: "한글의 조형미를 살린 전시 포스터 시리즈입니다."
-                },
-                {
-                    id: 4,
-                    title: "모바일 커머스 앱",
-                    category: "Mobile",
-                    year: "2023",
-                    imageUrl: "https://picsum.photos/600/1000?random=4",
-                    heightClass: "aspect-[9/16]",
-                    description: "제스처 기반의 쇼핑 경험을 제안하는 앱 디자인입니다."
-                },
-                {
-                    id: 5,
-                    title: "3D 아트워크 컬렉션",
-                    category: "3D Art",
-                    year: "2021",
-                    imageUrl: "https://picsum.photos/700/700?random=5",
-                    heightClass: "aspect-square",
-                    description: "초현실적인 분위기를 연출한 3D 그래픽 실험작입니다."
-                },
-                {
-                    id: 6,
-                    title: "전시 공간 디자인",
-                    category: "Space",
-                    year: "2022",
-                    imageUrl: "https://picsum.photos/800/500?random=6",
-                    heightClass: "aspect-[16/10]",
-                    description: "관람객의 동선을 고려한 인터랙티브 전시 공간입니다."
-                }
-            ],
-            // 스터디 목록
-            studies: [
-                { id: 101, title: "인터페이스의 미래", year: "2024.02", desc: "비시각적 UI 패턴에 대한 탐구와 햅틱 반응 연구." },
-                { id: 102, title: "제너레이티브 그리드", year: "2024.01", desc: "p5.js를 활용한 코드 기반 레이아웃 실험." },
-                { id: 103, title: "VR 타이포그래피", year: "2023.12", desc: "가상 환경에서의 텍스트 가독성 연구." }
-            ]
-        };
+    <!-- Detail View Overlay -->
+    <div id="project-detail-view">
+        <header class="detail-header">
+            <button class="detail-back-btn" id="detailBackBtn">
+                <span>←</span> <span data-t="back">Back</span>
+            </button>
+        </header>
+        <div id="detail-content-wrapper">
+            <!-- Dynamic Content Injected Here -->
+        </div>
+    </div>
 
-        // 3. 영어 데이터 (EN)
-        const DATA_EN = {
-            introTitle: "Designing digital experiences with focus and precision.",
-            introDesc: [
-                "Hello, I'm Alex. A multidisciplinary designer based in Seoul. I bridge the gap between aesthetic beauty and functional usability.",
-                "Over the past 5 years, I've worked with startups and brands to create identities that stand out."
-            ],
-            // Projects (English)
-            projects: [
-                {
-                    id: 1,
-                    title: "Minimalist Brand Identity",
-                    category: "Branding",
-                    year: "2023",
-                    imageUrl: "https://picsum.photos/600/800?random=1",
-                    heightClass: "aspect-[3/4]",
-                    description: "A project exploring the relationship between digital interfaces and human perception.",
-                    content: [
-                        { type: 'text', value: "We focused on the essence by eliminating unnecessary decorations." },
-                        { type: 'image', value: "https://picsum.photos/800/600?random=101" },
-                        { type: 'text', value: "Typography readability was prioritized for user experience." }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: "Fintech Dashboard",
-                    category: "UI/UX",
-                    year: "2024",
-                    imageUrl: "https://picsum.photos/800/600?random=2",
-                    heightClass: "aspect-video",
-                    description: "A dashboard design that intuitively visualizes financial data."
-                },
-                {
-                    id: 3,
-                    title: "Typography Poster",
-                    category: "Graphic",
-                    year: "2022",
-                    imageUrl: "https://picsum.photos/600/900?random=3",
-                    heightClass: "aspect-[2/3]",
-                    description: "A poster series highlighting the structural beauty of Hangeul."
-                },
-                {
-                    id: 4,
-                    title: "Mobile Commerce App",
-                    category: "Mobile",
-                    year: "2023",
-                    imageUrl: "https://picsum.photos/600/1000?random=4",
-                    heightClass: "aspect-[9/16]",
-                    description: "App design proposing a gesture-based shopping experience."
-                },
-                {
-                    id: 5,
-                    title: "3D Artwork Collection",
-                    category: "3D Art",
-                    year: "2021",
-                    imageUrl: "https://picsum.photos/700/700?random=5",
-                    heightClass: "aspect-square",
-                    description: "Experimental 3D graphics creating a surreal atmosphere."
-                },
-                {
-                    id: 6,
-                    title: "Exhibition Space Design",
-                    category: "Space",
-                    year: "2022",
-                    imageUrl: "https://picsum.photos/800/500?random=6",
-                    heightClass: "aspect-[16/10]",
-                    description: "Interactive exhibition space considering visitor flow."
-                }
-            ],
-            // Studies (English)
-            studies: [
-                { id: 101, title: "Future of Interfaces", year: "2024.02", desc: "Exploration of non-visual UI patterns and haptics." },
-                { id: 102, title: "Generative Grids", year: "2024.01", desc: "Code-based layout experiments using p5.js." },
-                { id: 103, title: "VR Typography", year: "2023.12", desc: "Readability studies in virtual environments." }
-            ]
-        };
+    <main>
+        <!-- 1. Home Section (Hero) -->
+        <section id="home-section" class="spa-view active">
+            <div class="hero">
+                <h1 class="hero-title js-animate delay-0">
+                    <span data-t="heroTitle1">Design Researcher</span>
+                    <span><span class="ampersand">&</span> <span data-t="heroTitle2">Engineer</span></span>
+                </h1>
+                <p class="hero-desc js-animate delay-1" data-t="heroDesc">
+                    Navigating between abstract philosophy and concrete structure.<br>
+                    Crafting digital experiences with depth and precision.
+                </p>
+                <div class="hero-nav js-animate delay-2">
+                    <button class="hero-nav-btn" onclick="goToCategory('Research')">Research ↗</button>
+                    <button class="hero-nav-btn" onclick="goToCategory('Design')">Design ↗</button>
+                    <button class="hero-nav-btn" onclick="goToCategory('Engineering')">Engineering ↗</button>
+                </div>
+            </div>
+        </section>
 
-        // 4. UI 텍스트 번역 사전
-        const TRANSLATIONS = {
+        <!-- 2. Work Section (Projects) -->
+        <section id="work-section" class="spa-view">
+            <div class="project-list-header js-animate delay-2">
+                <h2 class="section-title" data-t="sectionTitle">Selected Works</h2>
+                <div class="controls-wrapper">
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search projects...">
+                    </div>
+                    <nav class="filter-group">
+                        <button class="filter-btn active" data-filter="All" data-t="filterAll">All</button>
+                        <button class="filter-btn" data-filter="Research">Research</button>
+                        <button class="filter-btn" data-filter="Design">Design</button>
+                        <button class="filter-btn" data-filter="Engineering">Engineering</button>
+                    </nav>
+                </div>
+            </div>
+            <div class="project-grid" id="projectGrid">
+                <!-- Javascript will inject content here -->
+            </div>
+        </section>
+
+        <!-- 3. About Section (CV Style) -->
+        <section id="about-section" class="spa-view">
+            <div class="about-container js-animate">
+                <h2 class="section-title">About Me</h2>
+                
+                <div class="about-grid">
+                    <!-- Left: Bio -->
+                    <div class="about-left">
+                         <div class="about-bio-wrap">
+                            <p class="about-bio" data-t="aboutBio">
+                                <!-- Injected by JS -->
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Resume & Skills (Dynamic) -->
+                    <div class="about-right" id="aboutRightCol">
+                         <!-- Content injected by renderAbout() -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Contact Section -->
+        <section id="contact-section" class="spa-view">
+            <div class="contact-container js-animate">
+                <h2 class="section-title">Contact</h2>
+                
+                <div>
+                    <p class="contact-label" data-t="contactLabel">Say Hello</p>
+                    <a href="mailto:hello@thinkingbuilding.com" class="contact-email">hello@thinkingbuilding.com</a>
+                </div>
+
+                <div class="contact-info-grid">
+                    <div class="info-item">
+                        <h4 data-t="socialTitle">Socials</h4>
+                        <a href="#" class="social-link">LinkedIn ↗</a>
+                        <a href="#" class="social-link">GitHub ↗</a>
+                        <a href="#" class="social-link">Twitter ↗</a>
+                    </div>
+                    <div class="info-item">
+                        <h4 data-t="locationTitle">Location</h4>
+                        <p>Seoul, Republic of Korea</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer id="mainFooter">
+        <span class="sans">© 2024 Thinking & Building</span>
+        <a href="#" class="sans" onclick="navigateTo('contact-section'); return false;" data-t="footerTouch">Get in touch</a>
+    </footer>
+
+    <script>
+        // --- 0. Translations ---
+        const translations = {
             ko: {
-                menu_work: '작업',
-                menu_study: '스터디',
-                menu_about: '소개',
-                menu_contact: '문의',
-                menu_all: '전체 프로젝트',
-                title_selected: '주요 작업',
-                desc_selected: '최근 진행한 디자인 프로젝트 모음입니다.',
-                label_year: '연도',
-                label_overview: '프로젝트 개요',
-                btn_back: '목록으로 돌아가기',
-                section_reel: '쇼릴 영상',
-                contact_title: '프로젝트 의뢰하기',
-                contact_email: '이메일',
-                contact_phone: '전화번호',
-                contact_studio: '스튜디오',
+                close: '닫기',
+                back: '뒤로',
+                heroTitle1: 'Design Researcher',
+                heroTitle2: 'Engineer',
+                heroDesc: '추상적인 철학과 구체적인 구조 사이를 항해하며,<br>깊이와 정밀함을 갖춘 디지털 경험을 만듭니다.',
+                sectionTitle: 'Selected Works',
+                filterAll: '전체',
+                footerTouch: '문의하기',
+                searchPlaceholder: '프로젝트 검색...',
+                noProjects: '프로젝트가 없습니다.',
+                detailComingSoon: '상세 내용 준비중입니다.',
+                // About
+                aboutBio: '저는 사용자의 경험을 깊이 있게 탐구하는 연구자이자, 그 연구를 실제 제품으로 구현하는 엔지니어입니다.<br><br>기술과 인문학의 교차점에서 의미 있는 질문을 던지고, 코드로 그 해답을 그립니다. 단순한 기능 구현을 넘어, 사용자의 인지 과정과 감각적인 경험을 설계하는 데 집중합니다.',
+                aboutExperience: '경력',
+                aboutEducation: '학력',
+                aboutExhibitions: '전시',
+                aboutActivities: '활동',
+                aboutAwards: '수상',
+                aboutSkills: '기술 및 도구',
+                // Contact
+                contactLabel: '프로젝트 문의',
+                socialTitle: '소셜 미디어',
+                locationTitle: '위치'
             },
             en: {
-                menu_work: 'Work',
-                menu_study: 'Study',
-                menu_about: 'About',
-                menu_contact: 'Contact',
-                menu_all: 'All Projects',
-                title_selected: 'Selected Work',
-                desc_selected: 'A collection of recent design projects.',
-                label_year: 'Year',
-                label_overview: 'Overview',
-                btn_back: 'Back to list',
-                section_reel: 'Featured Reel',
-                contact_title: 'Let\'s work together.',
-                contact_email: 'Email',
-                contact_phone: 'Phone',
-                contact_studio: 'Studio',
+                close: 'Close',
+                back: 'Back',
+                heroTitle1: 'Design Researcher',
+                heroTitle2: 'Engineer',
+                heroDesc: 'Navigating between abstract philosophy and concrete structure.<br>Crafting digital experiences with depth and precision.',
+                sectionTitle: 'Selected Works',
+                filterAll: 'All',
+                footerTouch: 'Get in touch',
+                searchPlaceholder: 'Search projects...',
+                noProjects: 'No projects found.',
+                detailComingSoon: 'More details coming soon.',
+                // About
+                aboutBio: 'I am a researcher exploring user experience in depth, and an engineer bringing those insights to life.<br><br>I ask meaningful questions at the intersection of technology and humanities, and draw answers with code. Beyond simple implementation, I focus on designing the cognitive process and sensory experience of the user.',
+                aboutExperience: 'Experience',
+                aboutEducation: 'Education',
+                aboutExhibitions: 'Exhibitions',
+                aboutActivities: 'Activities',
+                aboutAwards: 'Awards',
+                aboutSkills: 'Capabilities',
+                // Contact
+                contactLabel: 'Say Hello',
+                socialTitle: 'Socials',
+                locationTitle: 'Location'
             }
         };
 
+        // --- 1. Data Source (i18n Applied & Thumbnail Added) ---
+        const projects = [
+            { 
+                id: 1, 
+                type: 'Research', 
+                title: {
+                    ko: '디지털 침묵의 현상학',
+                    en: 'The Phenomenology of Digital Silence'
+                },
+                date: '2023.10',
+                thumbnail: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=800&q=80',
+                tags: ['UX Theory', 'Philosophy', 'Minimalism'],
+                description: {
+                    ko: '디지털 인터페이스에서 발생하는 침묵의 현상학적 고찰과 UX 패턴 연구',
+                    en: 'Phenomenological inquiry into silence in digital interfaces and UX pattern research.'
+                },
+                details: [
+                    { type: 'text', content: {
+                        ko: '현대 인터페이스 디자인에서 "빈 공간(White Space)"은 단순히 비어있는 곳이 아닙니다. 하이데거의 존재론적 논의를 바탕으로, 디지털 환경에서의 침묵이 사용자 경험에 미치는 심리적 영향을 분석했습니다.',
+                        en: 'In modern interface design, "White Space" is not merely empty. Based on Heidegger\'s ontological discussion, we analyzed the psychological impact of silence in the digital environment on user experience.'
+                    }},
+                    { type: 'image', src: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1000&q=80', caption: 'Figure 1. The visual representation of digital noise vs silence.' },
+                    { type: 'text', content: {
+                        ko: '로딩 스피너가 돌아가는 0.5초의 침묵, 전송 완료 후의 고요함, 그리고 알림이 울리지 않는 방해 금지 모드의 역설적인 불안감을 다룹니다. 이 연구는 침묵을 "기능의 부재"가 아닌 "적극적인 인터랙션의 한 형태"로 재정의합니다.',
+                        en: 'It addresses the 0.5-second silence of a loading spinner, the stillness after transmission completion, and the paradoxical anxiety of Do Not Disturb mode. This research redefines silence not as the "absence of function" but as "a form of active interaction."'
+                    }}
+                ]
+            },
+            { 
+                id: 2, 
+                type: 'Engineering', 
+                title: {
+                    ko: '키네틱 타이포그래피 엔진',
+                    en: 'Kinetic Typography Engine'
+                },
+                date: '2023.12',
+                // Updated Thumbnail to GIF
+                thumbnail: 'https://media.giphy.com/media/l41lFj8af0LC05Tmo/giphy.gif',
+                tags: ['Vanilla JS', 'Performance', 'DOM Manipulation'],
+                description: {
+                    ko: 'WebGL 없이 DOM 조작만을 활용한 고성능 텍스트 애니메이션 라이브러리',
+                    en: 'High-performance text animation library using only DOM manipulation without WebGL.'
+                },
+                details: [
+                    { type: 'text', content: {
+                        ko: '일반적으로 화려한 텍스트 효과는 Canvas나 WebGL을 사용해야 한다고 생각합니다. 하지만 이는 SEO에 불리하고 접근성을 해칠 수 있습니다. 이 프로젝트는 순수 DOM 요소만을 사용하여 복잡한 운동학적(Kinetic) 타이포그래피를 구현하는 경량 엔진입니다.',
+                        en: 'Typically, fancy text effects imply Canvas or WebGL. However, this can harm SEO and accessibility. This project is a lightweight engine implementing complex kinetic typography using only pure DOM elements.'
+                    }},
+                    { type: 'image', src: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1000&q=80', caption: 'Engine Architecture Diagram' },
+                    // Added GIF Detail
+                    { type: 'image', src: 'https://media.giphy.com/media/l41lFj8af0LC05Tmo/giphy.gif', caption: 'Real-time Kinetic Rendering Demo' },
+                    { type: 'text', content: {
+                        ko: 'requestAnimationFrame을 최적화하여 60fps를 유지하면서, 각 글자가 물리 엔진이 적용된 것처럼 유기적으로 반응하도록 설계했습니다. CSS Custom Properties를 JS로 실시간 제어하여 렌더링 오버헤드를 최소화했습니다.',
+                        en: 'Designed to react organically as if a physics engine were applied to each letter, maintaining 60fps by optimizing requestAnimationFrame. Rendering overhead was minimized by controlling CSS Custom Properties in real-time with JS.'
+                    }}
+                ]
+            },
+            { 
+                id: 3, 
+                type: 'Research', 
+                title: {
+                    ko: '재귀 알고리즘의 윤리학',
+                    en: 'Ethics of Recursive Algorithms'
+                }, 
+                date: '2024.01',
+                thumbnail: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80',
+                tags: ['AI Ethics', 'Simulation', 'Python'],
+                description: {
+                    ko: '알고리즘의 재귀적 구조가 인간의 의사결정에 미치는 윤리적 영향 분석',
+                    en: 'Analysis of the ethical impact of the recursive structure of algorithms on human decision-making.'
+                },
+                details: [
+                     { type: 'text', content: {
+                         ko: '추천 알고리즘은 본질적으로 재귀적입니다. 사용자의 과거 선택이 미래의 선택지를 좁히고, 그 선택이 다시 과거 데이터가 되어 더 좁은 선택지를 제시합니다.',
+                         en: 'Recommendation algorithms are inherently recursive. Past choices narrow future options, which then become past data, narrowing options further.'
+                     }}
+                ]
+            },
+            { 
+                id: 4, 
+                type: 'Design', 
+                title: {
+                    ko: '모듈형 디자인 시스템 Void',
+                    en: 'Modular Design System Void'
+                }, 
+                date: '2024.03',
+                thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+                tags: ['Design Systems', 'Headless UI', 'A11y'],
+                description: {
+                    ko: '불필요한 스타일을 제거하고 구조적 기능에 집중한 React 기반 디자인 시스템',
+                    en: 'React-based design system focusing on structural function, stripping away unnecessary styles.'
+                },
+                details: [
+                    { type: 'text', content: {
+                        ko: '대부분의 디자인 시스템은 "어떻게 보이는가"에 집중합니다. 하지만 "Void"는 "어떻게 작동하는가"에 집중합니다. Headless component 패턴을 차용하여 스타일을 강제하지 않고, 키보드 접근성(A11y)과 상태 관리 로직만을 제공합니다.',
+                        en: 'Most design systems focus on "how it looks." "Void" focuses on "how it works." Adopting the Headless component pattern, it enforces no styles but provides keyboard accessibility (A11y) and state management logic.'
+                    }},
+                    { type: 'image', src: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=80', caption: 'Component Structure' }
+                ]
+            },
+            { 
+                id: 5, 
+                type: 'Engineering', 
+                title: {
+                    ko: '실시간 캔버스 최적화',
+                    en: 'Real-time Canvas Optimizer'
+                }, 
+                date: '2024.05', 
+                thumbnail: 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&w=800&q=80',
+                tags: ['Data Viz', 'WebGL', 'Optimization'],
+                description: {
+                    ko: '대규모 데이터 시각화를 위한 캔버스 렌더링 최적화 알고리즘',
+                    en: 'Canvas rendering optimization algorithms for large-scale data visualization.'
+                }, 
+                details: [
+                    { type: 'text', content: {
+                         ko: '수만 개의 데이터 포인트를 60fps로 렌더링하기 위한 WebGL/Canvas 최적화 기법 시연 영상입니다. 오프스크린 캔버스와 워커 스레드를 활용하여 메인 스레드의 부하를 최소화했습니다.',
+                         en: 'Demonstration of WebGL/Canvas optimization techniques for rendering tens of thousands of data points at 60fps. Utilized OffscreenCanvas and Worker threads to minimize main thread load.'
+                     }},
+                     // Added Youtube Embed Video
+                     { type: 'video', src: 'https://www.youtube.com/embed/KGJquM8D0Ks?si=Lz-Dk7X_x2x_x2x' } 
+                ] 
+            },
+            { 
+                id: 6, 
+                type: 'Design', 
+                title: {
+                    ko: '마이크로 인터랙션 패턴',
+                    en: 'Micro-interaction Patterns'
+                }, 
+                date: '2024.06', 
+                thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+                tags: ['Interaction Design', 'Motion', 'Prototyping'],
+                description: {
+                    ko: '사용자 인지 부하를 최소화하는 모바일 인터랙션 패턴 모음집',
+                    en: 'Collection of mobile interaction patterns minimizing user cognitive load.'
+                }, 
+                details: [] 
+            }
+        ];
 
-        /***********************************************************************
-         *  [2] 시스템 구역 (System Zone) - 여기부터는 코드 영역입니다.
-         ***********************************************************************/
+        // About Data (Unified Structure)
+        const aboutData = {
+            experience: [
+                { year: '2024', title: { ko: '프리랜서 디자인 엔지니어', en: 'Freelance Design Engineer' }, sub: 'Self-Employed' },
+                { year: '2022', title: { ko: '시니어 프론트엔드 개발자', en: 'Senior Frontend Developer' }, sub: 'Tech Studio A' },
+                { year: '2020', title: { ko: 'UI/UX 디자이너', en: 'UI/UX Designer' }, sub: 'Creative Agency B' }
+            ],
+            education: [
+                { year: '2019', title: { ko: '산업디자인 석사', en: 'M.S. Industrial Design' }, sub: 'KAIST' },
+                { year: '2017', title: { ko: '컴퓨터공학 학사', en: 'B.S. Computer Science' }, sub: 'Seoul National University' }
+            ],
+            exhibitions: [
+                { year: '2023', title: { ko: '디지털 노이즈 전', en: 'Digital Noise Exhibition' }, sub: 'Seoul Art Center' },
+                { year: '2019', title: { ko: '미디어 아트 비엔날레', en: 'Media Art Biennale' }, sub: 'Gwangju' }
+            ],
+            activities: [
+                { year: '2021', title: { ko: '오픈소스 컨트리뷰터', en: 'Open Source Contributor' }, sub: 'React Core Team' }
+            ],
+            awards: [
+                { year: '2022', title: { ko: '레드닷 디자인 어워드', en: 'Red Dot Design Award' }, sub: 'Best of Best' },
+                { year: '2020', title: { ko: 'iF 디자인 어워드', en: 'iF Design Award' }, sub: 'Winner' }
+            ],
+            skills: [
+                'JavaScript (ES6+)', 'TypeScript', 'React', 'WebGL', 'Three.js', 
+                'GLSL', 'Python', 'Node.js', 'Figma', 'Blender'
+            ]
+        };
+
+        // --- 2. State & DOM Elements ---
+        let state = { filter: 'All', search: '', lang: 'ko', view: 'home-section' };
+
+        const gridContainer = document.getElementById('projectGrid');
+        const menuBtn = document.getElementById('menuBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const detailView = document.getElementById('project-detail-view');
+        const detailContentWrapper = document.getElementById('detail-content-wrapper');
+        const detailBackBtn = document.getElementById('detailBackBtn');
+        const loader = document.getElementById('loader');
+        const langOpts = document.querySelectorAll('.lang-opt');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const spaViews = document.querySelectorAll('.spa-view');
+        const logoBtn = document.getElementById('logoBtn');
+        // Removed explicit resumeList and skillList variables as they are now dynamic
         
-        const { useState, useEffect, useRef } = React;
+        // Floating Cursor Elements
+        const cursorFollower = document.getElementById('cursor-follower');
+        const cursorFollowerImg = cursorFollower.querySelector('img');
 
-        // [아이콘 컴포넌트 (Inline SVG)]
-        const Icons = {
-            Menu: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
-            X: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
-            ChevronDown: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>,
-            ChevronRight: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
-            ArrowUpRight: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>,
-            ArrowLeft: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>,
-            Github: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4c0-1.5-.9-2.5-2-3.14 3-.3 6-1.5 6-6.1 0-1.4-.5-2.5-1.1-3.3.1-.3.5-1.4-.1-3.3 0 0-1.1-.4-3.5 1.2a12.3 12.3 0 0 0-6.4 0C3.5 1.4 2.4 1.8 2.4 1.8c-.6 1.9-.2 3 .1 3.3-.6.8-1.1 1.9-1.1 3.3 0 4.6 3 5.7 6 6.1-1.1.7-1.7 1.8-1.7 3.5v4.5"/><path d="M9 19c-4.3 1.7-6.4-1.5-6.4-1.5"/></svg>,
-            Twitter: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>,
-            Linkedin: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>,
-            Instagram: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>,
-            Mail: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
-            Phone: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
-            MapPin: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-        };
+        // Helper: Get Translation
+        const t = (key) => translations[state.lang][key] || key;
 
-        // --- 컴포넌트: 라이트박스 ---
-        const Lightbox = ({ isOpen, imageSrc, onClose }) => {
-            const [isVisible, setIsVisible] = useState(false);
-            useEffect(() => {
-                if (isOpen) {
-                    setIsVisible(true);
-                    document.body.style.overflow = 'hidden';
+        // --- 3. Update UI Language ---
+        function updateUI() {
+            // Update Static Texts with data-t attribute
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                if (translations[state.lang][key]) {
+                    el.innerHTML = translations[state.lang][key];
+                }
+            });
+
+            // Update Placeholders
+            searchInput.placeholder = t('searchPlaceholder');
+
+            // Update Toggle State
+            langOpts.forEach(opt => {
+                if (opt.getAttribute('data-lang') === state.lang) {
+                    opt.classList.add('active');
                 } else {
-                    const timer = setTimeout(() => setIsVisible(false), 300);
-                    document.body.style.overflow = '';
-                    return () => clearTimeout(timer);
+                    opt.classList.remove('active');
                 }
-            }, [isOpen]);
+            });
 
-            if (!isVisible && !isOpen) return null;
-
-            return (
-                <div 
-                    className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-500 ease-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
-                    onClick={onClose}
-                >
-                    <button 
-                        onClick={onClose}
-                        className="absolute top-6 right-6 text-white hover:text-gray-300 p-2 rounded-full bg-white/10 transition-colors z-[110]"
-                    >
-                        <Icons.X width={32} height={32} />
-                    </button>
-                    {imageSrc && (
-                        <img 
-                            src={imageSrc} 
-                            alt="Full view" 
-                            className={`max-w-full max-h-[90vh] object-contain shadow-2xl transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-4'}`}
-                            onClick={(e) => e.stopPropagation()} 
-                        />
-                    )}
-                </div>
-            );
-        };
-
-        // --- 컴포넌트: 비디오 섹션 ---
-        const VideoSection = ({ title }) => (
-            <div className="w-full mb-12 animate-fade-in-up">
-                <h3 className="text-xl text-white font-medium mb-4">{title}</h3>
-                <div className="relative w-full aspect-video rounded-xl bg-neutral-800 border border-neutral-800 shadow-2xl img-card-container">
-                    <iframe
-                        className="absolute top-0 left-0 w-full h-full rounded-xl"
-                        src={`https://www.youtube.com/embed/${COMMON_PROFILE.youtubeVideoId}`}
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                    ></iframe>
-                </div>
-            </div>
-        );
-
-        // --- 컴포넌트: 프로젝트 목록 ---
-        const PortfolioGrid = ({ items, category, onItemClick, t }) => {
-            const containerRef = useRef(null);
+            // Menu Button is always English
+            if (!menuOverlay.classList.contains('active')) {
+                menuBtn.innerText = 'Menu';
+            } else {
+                menuBtn.innerText = 'Close';
+            }
             
-            const filteredItems = category === 'All' 
-                ? items 
-                : items.filter(item => item.category === category);
+            // Re-render contents
+            renderProjects(false);
+            renderAbout();
 
-            // Intersection Observer (스크롤 애니메이션)
-            useEffect(() => {
-                const observer = new IntersectionObserver(
-                    (entries) => {
-                        entries.forEach((entry) => {
-                            if (entry.isIntersecting) {
-                                entry.target.classList.add('is-visible');
-                                observer.unobserve(entry.target);
-                            }
-                        });
-                    },
-                    { threshold: 0.1, rootMargin: '50px' }
-                );
-                
+            // Re-render Detail View if active
+            if (detailView.classList.contains('active')) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('project');
+                if (projectId) openDetailView(projectId);
+            }
+        }
+
+        // --- 4. Intro Loader Logic ---
+        function runIntro() {
+            const hasVisited = sessionStorage.getItem('hasVisited');
+
+            if (hasVisited) {
+                loader.style.display = 'none';
+                startAppAnimations();
+            } else {
                 setTimeout(() => {
-                    const elements = containerRef.current?.querySelectorAll('.reveal-on-scroll');
-                    elements?.forEach(el => observer.observe(el));
-                }, 100);
+                    loader.classList.add('hidden');
+                    setTimeout(() => {
+                        startAppAnimations();
+                    }, 400); 
+                }, 2000); 
+                sessionStorage.setItem('hasVisited', 'true');
+            }
+        }
 
-                return () => observer.disconnect();
-            }, [filteredItems]);
+        function startAppAnimations() {
+            const targets = document.querySelectorAll('.js-animate');
+            targets.forEach(el => el.classList.add('animate-init'));
+            renderProjects(true);
+            renderAbout();
+        }
 
-            return (
-                <div ref={containerRef} className="w-full min-h-[50vh]">
-                    <div className="mb-8 reveal-on-scroll">
-                        <h2 className="text-3xl font-light text-white mb-2">
-                            {category === 'All' ? t.title_selected : category}
-                        </h2>
-                        <p className="text-secondary font-light">
-                            {category === 'All' ? t.desc_selected : category}
-                        </p>
-                    </div>
+        // --- 5. Navigation & SPA Logic ---
+        window.navigateTo = function(viewId) {
+            // 1. Hide all views
+            spaViews.forEach(view => {
+                view.classList.remove('active');
+                setTimeout(() => {
+                    if(!view.classList.contains('active')) view.style.display = 'none';
+                }, 600); 
+            });
 
-                    <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
-                        {filteredItems.map((item, index) => (
-                            <div 
-                                key={item.id} 
-                                onClick={() => onItemClick(item)}
-                                className="break-inside-avoid group relative cursor-pointer reveal-on-scroll"
-                                style={{ transitionDelay: `${(index % 4) * 100}ms` }}
-                            >
-                                <div className={`relative w-full rounded-lg bg-neutral-800 ${item.heightClass} img-card-container`}>
-                                    <img 
-                                        src={item.imageUrl} 
-                                        alt={item.title} 
-                                        className="w-full h-full object-cover rounded-lg"
-                                        loading="lazy"
-                                    />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 rounded-lg">
-                                        <span className="text-accent text-xs font-bold uppercase tracking-wider mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                            {item.category}
-                                        </span>
-                                        <div className="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
-                                            <h3 className="text-white text-lg font-medium leading-tight">
-                                                {item.title}
-                                            </h3>
-                                            <Icons.ArrowUpRight className="text-white opacity-90" width={20} height={20} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
+            // 2. Show target view
+            const target = document.getElementById(viewId);
+            if (target) {
+                spaViews.forEach(v => v.style.display = 'none'); 
+                target.style.display = 'block';
+                void target.offsetWidth; 
+                target.classList.add('active');
+                state.view = viewId;
+            }
 
-        // --- 컴포넌트: 프로젝트 상세 ---
-        const ProjectDetail = ({ project, onBack, onOpenLightbox, t }) => {
-            useEffect(() => {
-                window.scrollTo({ top: 0, behavior: 'instant' });
-            }, []);
+            // 3. Update Menu Active State
+            menuLinks.forEach(link => {
+                if(link.getAttribute('data-target') === viewId) {
+                    link.classList.add('active-link');
+                } else {
+                    link.classList.remove('active-link');
+                }
+            });
 
-            return (
-                <div className="w-full animate-fade-in-up pb-20">
-                    <button 
-                        onClick={onBack}
-                        className="group flex items-center text-secondary hover:text-white transition-colors mb-8"
-                    >
-                        <Icons.ArrowLeft width={20} height={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-sm font-medium uppercase tracking-wide">{t.btn_back}</span>
-                    </button>
-
-                    <header className="mb-12">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-neutral-800 pb-8 mb-8">
-                            <div className="mb-6 md:mb-0">
-                                <h1 className="text-4xl md:text-5xl font-light text-white mb-2 tracking-tight">
-                                    {project.title}
-                                </h1>
-                                <span className="text-accent text-sm font-bold uppercase tracking-wider">
-                                    {project.category}
-                                </span>
-                            </div>
-                            <div className="flex space-x-12 text-sm">
-                                <div>
-                                    <span className="block text-neutral-500 uppercase text-[10px] tracking-widest mb-1">{t.label_year}</span>
-                                    <span className="text-white">{project.year}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div className="space-y-12">
-                        <div 
-                            className="w-full rounded-lg bg-neutral-900 border border-neutral-800 img-card-container cursor-zoom-in"
-                            onClick={() => onOpenLightbox(project.imageUrl)}
-                        >
-                            <img src={project.imageUrl} alt={project.title} className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                            <div className="md:col-span-4">
-                                <h3 className="text-white font-medium mb-2">{t.label_overview}</h3>
-                                <div className="h-0.5 w-12 bg-accent mb-4"></div>
-                            </div>
-                            <div className="md:col-span-8">
-                                <p className="text-secondary text-lg leading-relaxed whitespace-pre-line mb-8">
-                                    {project.description}
-                                </p>
-                                {project.content && project.content.map((block, i) => (
-                                    <div key={i} className="mb-8">
-                                        {block.type === 'text' && (
-                                            <p className="text-secondary text-lg leading-relaxed whitespace-pre-line">{block.value}</p>
-                                        )}
-                                        {block.type === 'image' && (
-                                            <div 
-                                                className="rounded-lg bg-neutral-900 border border-neutral-800 img-card-container cursor-zoom-in mt-4"
-                                                onClick={() => onOpenLightbox(block.value)}
-                                            >
-                                                <img src={block.value} alt="detail" className="w-full h-auto object-cover rounded-lg" />
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // --- 메인 앱 ---
-        const App = () => {
-            const [language, setLanguage] = useState('ko'); // 기본 언어: KO
-            const [activeSection, setActiveSection] = useState('Work');
-            const [activeCategory, setActiveCategory] = useState('All');
-            const [selectedProject, setSelectedProject] = useState(null);
-            const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-            const [isWorkOpen, setIsWorkOpen] = useState(true);
+            // 4. Close Menu if open
+            if (menuOverlay.classList.contains('active')) {
+                menuOverlay.classList.remove('active');
+                menuBtn.innerText = 'Menu';
+            }
             
-            // Lightbox
-            const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-            const [lightboxImage, setLightboxImage] = useState(null);
+            // 5. Scroll to top
+            window.scrollTo(0, 0);
+        }
 
-            // 현재 언어 데이터 선택
-            const currentData = language === 'ko' ? DATA_KO : DATA_EN;
-            const t = TRANSLATIONS[language];
+        logoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo('home-section');
+        });
+        
+        // Navigation from Hero to Work with category
+        window.goToCategory = function(category) {
+            // 1. Update State
+            state.filter = category;
 
-            // 모바일 뒤로가기 제어
-            useEffect(() => {
-                const handlePopState = (event) => {
-                    if (isLightboxOpen) {
-                        setIsLightboxOpen(false);
-                    } else if (selectedProject) {
-                        setSelectedProject(null);
-                    }
-                };
-                window.addEventListener('popstate', handlePopState);
-                return () => window.removeEventListener('popstate', handlePopState);
-            }, [isLightboxOpen, selectedProject]);
-
-            const openLightbox = (src) => {
-                window.history.pushState({ modal: true }, '', ''); 
-                setLightboxImage(src);
-                setIsLightboxOpen(true);
-            };
-            const closeLightbox = () => setIsLightboxOpen(false);
-
-            const handleNavigate = (section, category = 'All') => {
-                setActiveSection(section);
-                setSelectedProject(null);
-                if (section === 'Work') setActiveCategory(category);
-                setIsMobileMenuOpen(false);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-
-            const renderContent = () => {
-                if (selectedProject) {
-                    return <ProjectDetail project={selectedProject} onBack={() => setSelectedProject(null)} onOpenLightbox={openLightbox} t={t} />;
+            // 2. Update Filter Buttons UI
+            filterBtns.forEach(btn => {
+                if(btn.getAttribute('data-filter') === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
                 }
-                
-                switch (activeSection) {
-                    case 'Work':
-                        return <PortfolioGrid items={currentData.projects} category={activeCategory} onItemClick={setSelectedProject} t={t} />;
-                    case 'Study':
-                        return (
-                            <div className="w-full animate-fade-in-up">
-                                <h2 className="text-3xl font-light text-white mb-8">{t.menu_study}</h2>
-                                <div className="space-y-6">
-                                    {currentData.studies.map((study) => (
-                                        <div key={study.id} className="border-b border-neutral-800 pb-6">
-                                            <span className="text-sm text-secondary font-mono block mb-1">{study.year}</span>
-                                            <h3 className="text-xl text-white font-medium mb-1">{study.title}</h3>
-                                            <p className="text-secondary text-sm">{study.desc}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    case 'About':
-                        return (
-                            <div className="max-w-3xl w-full mx-auto space-y-12 animate-fade-in-up">
-                                <section>
-                                    <h2 className="text-4xl font-light text-white mb-6 leading-tight">{currentData.introTitle}</h2>
-                                    <div className="space-y-6 text-lg text-secondary leading-relaxed">
-                                        {currentData.introDesc.map((txt, i) => <p key={i}>{txt}</p>)}
-                                    </div>
-                                </section>
-                                <div className="border-t border-neutral-800 pt-12">
-                                    <VideoSection title={t.section_reel} />
-                                </div>
-                            </div>
-                        );
-                    case 'Contact':
-                        return (
-                            <div className="max-w-2xl w-full mx-auto animate-fade-in-up">
-                                <h2 className="text-3xl font-light text-white mb-8">{t.menu_contact}</h2>
-                                <div className="bg-neutral-900 rounded-xl p-8 border border-neutral-800 space-y-6">
-                                    <div className="flex items-start space-x-4">
-                                        <Icons.Mail className="text-secondary" width={24} height={24} />
-                                        <div>
-                                            <h3 className="text-white font-medium">{t.contact_email}</h3>
-                                            <a href={`mailto:${COMMON_PROFILE.email}`} className="text-accent hover:underline">{COMMON_PROFILE.email}</a>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start space-x-4">
-                                        <Icons.Phone className="text-secondary" width={24} height={24} />
-                                        <div>
-                                            <h3 className="text-white font-medium">{t.contact_phone}</h3>
-                                            <p className="text-secondary">{COMMON_PROFILE.phone}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start space-x-4">
-                                        <Icons.MapPin className="text-secondary" width={24} height={24} />
-                                        <div>
-                                            <h3 className="text-white font-medium">{t.contact_studio}</h3>
-                                            <p className="text-secondary">{COMMON_PROFILE.address}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    default: return null;
-                }
-            };
+            });
 
-            const linkClass = (isActive) => 
-                `block w-full text-left py-2 px-4 rounded-md text-sm transition-colors ${isActive ? 'text-white bg-neutral-800' : 'text-secondary hover:text-white'}`;
+            // 3. Render Projects
+            renderProjects(false);
 
-            return (
-                <div className="flex min-h-screen">
-                    {/* 모바일 메뉴 토글 */}
-                    <button 
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="fixed top-4 right-4 z-50 md:hidden p-2 bg-neutral-800 rounded-full text-white shadow-lg"
-                    >
-                        {isMobileMenuOpen ? <Icons.X width={24} height={24} /> : <Icons.Menu width={24} height={24} />}
-                    </button>
+            // 4. Navigate
+            navigateTo('work-section');
+        }
 
-                    {/* 사이드바 */}
-                    <nav className={`fixed inset-y-0 left-0 z-40 w-64 bg-background border-r border-neutral-800 transform transition-transform duration-300 md:translate-x-0 md:static md:h-screen md:flex md:flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                        <div className="p-8 pb-4">
-                            <h1 className="text-2xl font-bold tracking-tighter text-white mb-1">{COMMON_PROFILE.name}</h1>
-                            <p className="text-xs text-secondary uppercase tracking-widest">{COMMON_PROFILE.role}</p>
-                        </div>
-                        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-                            {/* Work 메뉴 */}
-                            <div className="mb-4">
-                                <button 
-                                    onClick={() => setIsWorkOpen(!isWorkOpen)}
-                                    className="w-full text-left py-2 px-4 rounded-md text-secondary hover:text-white flex items-center justify-between"
-                                >
-                                    <span className="font-bold text-xs text-neutral-500 uppercase">{t.menu_work}</span>
-                                    {isWorkOpen ? <Icons.ChevronDown width={14} /> : <Icons.ChevronRight width={14} />}
-                                </button>
-                                
-                                {isWorkOpen && (
-                                    <div className="pl-2 space-y-1 mt-1">
-                                        <button onClick={() => handleNavigate('Work', 'All')} className={linkClass(activeSection === 'Work' && activeCategory === 'All')}>{t.menu_all}</button>
-                                        {/* 카테고리는 언어별 데이터에서 추출 */}
-                                        {[...new Set(currentData.projects.map(p => p.category))].map(cat => (
-                                            <button key={cat} onClick={() => handleNavigate('Work', cat)} className={linkClass(activeSection === 'Work' && activeCategory === cat)}>
-                                                {cat}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            
-                            {/* 기타 메뉴 */}
-                            <div>
-                                <p className="px-4 text-xs font-bold text-neutral-500 uppercase mb-2 mt-6">Menu</p>
-                                <button onClick={() => handleNavigate('Study')} className={linkClass(activeSection === 'Study')}>{t.menu_study}</button>
-                                <button onClick={() => handleNavigate('About')} className={linkClass(activeSection === 'About')}>{t.menu_about}</button>
-                                <button onClick={() => handleNavigate('Contact')} className={linkClass(activeSection === 'Contact')}>{t.menu_contact}</button>
-                            </div>
-                        </div>
 
-                        {/* 언어 선택 및 소셜 링크 */}
-                        <div className="p-8 border-t border-neutral-800">
-                             {/* 언어 토글 */}
-                            <div className="flex items-center space-x-3 mb-6 text-sm font-medium">
-                                <button 
-                                    onClick={() => setLanguage('ko')}
-                                    className={`${language === 'ko' ? 'text-white' : 'text-neutral-600 hover:text-neutral-400'} transition-colors`}
-                                >
-                                    KO
-                                </button>
-                                <span className="text-neutral-700">|</span>
-                                <button 
-                                    onClick={() => setLanguage('en')}
-                                    className={`${language === 'en' ? 'text-white' : 'text-neutral-600 hover:text-neutral-400'} transition-colors`}
-                                >
-                                    EN
-                                </button>
-                            </div>
+        // --- 6. Detail View Logic ---
+        function openDetailView(projectId) {
+            const project = projects.find(p => p.id === parseInt(projectId));
+            if (!project) return;
 
-                            <div className="flex space-x-4">
-                                {COMMON_PROFILE.social.github && <a href={COMMON_PROFILE.social.github} target="_blank" className="text-secondary hover:text-white"><Icons.Github width={20} /></a>}
-                                {COMMON_PROFILE.social.linkedin && <a href={COMMON_PROFILE.social.linkedin} target="_blank" className="text-secondary hover:text-white"><Icons.Linkedin width={20} /></a>}
-                                {COMMON_PROFILE.social.twitter && <a href={COMMON_PROFILE.social.twitter} target="_blank" className="text-secondary hover:text-white"><Icons.Twitter width={20} /></a>}
-                                {COMMON_PROFILE.social.instagram && <a href={COMMON_PROFILE.social.instagram} target="_blank" className="text-secondary hover:text-white"><Icons.Instagram width={20} /></a>}
-                            </div>
-                        </div>
-                    </nav>
+            const title = project.title[state.lang];
+            const desc = project.description[state.lang];
 
-                    {/* 콘텐츠 메인 */}
-                    <main className="flex-1 w-full md:ml-0 min-h-screen">
-                        <div className="p-6 md:p-12 lg:p-16 max-w-7xl mx-auto pt-20 md:pt-16">
-                            {renderContent()}
-                        </div>
-                    </main>
-
-                    {/* 라이트박스 */}
-                    <Lightbox isOpen={isLightboxOpen} imageSrc={lightboxImage} onClose={closeLightbox} />
+            let contentHTML = `
+                <div class="d-header">
+                    <div class="d-meta"><span>${project.type}</span><span>${project.date}</span></div>
+                    <h1 class="d-title">${title}</h1>
+                    <p class="d-desc">${desc}</p>
                 </div>
-            );
-        };
+                <div class="d-body">`;
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+            if (project.details && project.details.length > 0) {
+                project.details.forEach(block => {
+                    if (block.type === 'text') {
+                        const text = typeof block.content === 'object' ? block.content[state.lang] : block.content;
+                        contentHTML += `<div class="d-content-block d-text">${text}</div>`;
+                    } else if (block.type === 'image') {
+                        contentHTML += `<figure class="d-content-block d-image-figure"><img src="${block.src}" class="d-image"><figcaption class="d-caption">${block.caption || ''}</figcaption></figure>`;
+                    } else if (block.type === 'video') {
+                        // Check for Youtube
+                        if (block.src.includes('youtube.com') || block.src.includes('youtu.be')) {
+                             contentHTML += `<iframe src="${block.src}" class="d-content-block d-video-iframe" title="Video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                        } else {
+                             contentHTML += `<video src="${block.src}" controls class="d-content-block d-video"></video>`;
+                        }
+                    }
+                });
+            } else {
+                contentHTML += `<p class="d-text" style="opacity:0.6;">${t('detailComingSoon')}</p>`;
+            }
+            contentHTML += `</div>`;
+
+            detailContentWrapper.innerHTML = contentHTML;
+            
+            if (!detailView.classList.contains('active')) {
+                detailView.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            const currentParams = new URLSearchParams(window.location.search);
+            if (currentParams.get('project') !== String(projectId)) {
+                const newUrl = `${window.location.pathname}?project=${projectId}`;
+                history.pushState({ projectId: projectId }, '', newUrl);
+            }
+        }
+
+        window.addEventListener('popstate', (event) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('project');
+            if (projectId) {
+                 openDetailView(projectId);
+            } else {
+                detailView.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        detailBackBtn.addEventListener('click', () => {
+             if (window.location.search.includes('project=')) {
+                 history.back();
+             } else {
+                 detailView.classList.remove('active');
+                 document.body.style.overflow = '';
+             }
+        });
+
+        // --- 7. Render Functions ---
+        function renderProjects(isInitial = false) {
+            gridContainer.innerHTML = '';
+            const filtered = projects.filter(p => {
+                const matchType = state.filter === 'All' || p.type === state.filter;
+                const searchLower = state.search.toLowerCase();
+                
+                const titleText = p.title[state.lang].replace(/<br>/g, ' '); 
+                const descText = p.description[state.lang];
+                
+                const tagsString = p.tags ? p.tags.join(' ').toLowerCase() : '';
+                const matchSearch = titleText.toLowerCase().includes(searchLower) || 
+                                    descText.toLowerCase().includes(searchLower) ||
+                                    tagsString.includes(searchLower);
+
+                return matchType && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                gridContainer.innerHTML = `<p class="sans" style="opacity:0.5; grid-column: 1 / -1; padding-top: 20px;">${t('noProjects')}</p>`;
+                return;
+            }
+
+            filtered.forEach((project, index) => {
+                const article = document.createElement('article');
+                article.className = 'project-item';
+                // Add thumbnail data attribute for PC Hover
+                article.dataset.thumbnail = project.thumbnail;
+                
+                const baseDelay = isInitial ? 0 : 0; 
+                article.style.animation = `cinematicFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards`;
+                article.style.animationDelay = `${baseDelay + (index * 0.1)}s`;
+
+                const tagsHTML = project.tags 
+                    ? project.tags.map(tag => `<span class="p-tag">#${tag}</span>`).join('') 
+                    : '';
+
+                article.innerHTML = `
+                    <div class="p-meta"><span>${project.type}</span><span>${project.date}</span></div>
+                    <h3 class="p-title">${project.title[state.lang]}</h3>
+                    <div class="p-tags">${tagsHTML}</div>
+                    <p class="p-desc">${project.description[state.lang]}</p>
+                    <img src="${project.thumbnail}" class="p-mobile-thumb" alt="Thumbnail">
+                `;
+                
+                // Interaction Logic (Unified)
+                // 1. Mouse Enter/Leave for PC Floating Image
+                article.addEventListener('mouseenter', () => {
+                    // Only for fine pointers (Mouse)
+                    if (window.matchMedia('(hover: hover)').matches) {
+                        cursorFollowerImg.src = project.thumbnail;
+                        cursorFollower.classList.add('active');
+                    }
+                });
+                
+                article.addEventListener('mouseleave', () => {
+                    cursorFollower.classList.remove('active');
+                });
+                
+                // 2. Click Logic for Touch vs Mouse
+                article.addEventListener('click', (e) => {
+                    const isTouch = window.matchMedia('(hover: none)').matches;
+                    
+                    if (isTouch) {
+                        // Mobile: 1st tap reveals, 2nd tap enters
+                        if (article.classList.contains('mobile-active')) {
+                            openDetailView(project.id);
+                        } else {
+                            // Reset others
+                            document.querySelectorAll('.project-item').forEach(el => el.classList.remove('mobile-active'));
+                            article.classList.add('mobile-active');
+                        }
+                    } else {
+                        // PC: Direct Enter
+                        openDetailView(project.id);
+                    }
+                });
+                
+                gridContainer.appendChild(article);
+            });
+        }
+
+        function renderAbout() {
+            const container = document.getElementById('aboutRightCol');
+            container.innerHTML = ''; // Clear existing content
+
+            const sections = [
+                { key: 'experience', tKey: 'aboutExperience' },
+                { key: 'education', tKey: 'aboutEducation' },
+                { key: 'exhibitions', tKey: 'aboutExhibitions' },
+                { key: 'activities', tKey: 'aboutActivities' },
+                { key: 'awards', tKey: 'aboutAwards' },
+                { key: 'skills', tKey: 'aboutSkills' }
+            ];
+
+            sections.forEach(sec => {
+                const data = aboutData[sec.key];
+                if (!data || data.length === 0) return;
+
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'resume-section';
+
+                const header = document.createElement('h3');
+                header.className = 'resume-header';
+                header.innerText = t(sec.tKey);
+                sectionDiv.appendChild(header);
+
+                if (sec.key === 'skills') {
+                    const listDiv = document.createElement('div');
+                    listDiv.className = 'skill-list';
+                    data.forEach(skill => {
+                        const tag = document.createElement('span');
+                        tag.className = 'skill-tag';
+                        tag.innerText = skill;
+                        listDiv.appendChild(tag);
+                    });
+                    sectionDiv.appendChild(listDiv);
+                } else {
+                    const listDiv = document.createElement('div');
+                    listDiv.className = 'resume-list';
+                    data.forEach(item => {
+                        const row = document.createElement('div');
+                        row.className = 'resume-item';
+                        row.innerHTML = `
+                            <span class="r-year">${item.year}</span>
+                            <div>
+                                <div class="r-role">${item.title[state.lang]}</div>
+                                <span class="r-company">${item.sub}</span>
+                            </div>
+                        `;
+                        listDiv.appendChild(row);
+                    });
+                    sectionDiv.appendChild(listDiv);
+                }
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        // --- 8. Global Events ---
+        
+        // Mouse Move for Cursor Follower
+        document.addEventListener('mousemove', (e) => {
+            // Simple follow logic
+            cursorFollower.style.left = e.clientX + 'px';
+            cursorFollower.style.top = e.clientY + 'px';
+        });
+
+        // Context Menu Control (Protect Works)
+        document.addEventListener('contextmenu', (e) => {
+            // Disable right-click only in Work section and Detail view
+            if (e.target.closest('#work-section') || e.target.closest('#project-detail-view')) {
+                e.preventDefault();
+            }
+        });
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedLang = sessionStorage.getItem('lang');
+            if (storedLang) state.lang = storedLang;
+            updateUI(); 
+
+            runIntro();
+            navigateTo('home-section');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('project');
+            if (projectId) {
+                 openDetailView(projectId);
+            }
+
+            langOpts.forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    const newLang = e.target.getAttribute('data-lang');
+                    if (state.lang !== newLang) {
+                        state.lang = newLang;
+                        sessionStorage.setItem('lang', newLang);
+                        updateUI();
+                    }
+                });
+            });
+
+            menuBtn.addEventListener('click', () => {
+                if (menuOverlay.classList.contains('active')) {
+                    menuOverlay.classList.remove('active');
+                    menuBtn.innerText = 'Menu';
+                } else {
+                    menuOverlay.classList.add('active');
+                    menuBtn.innerText = 'Close';
+                }
+            });
+            
+            menuLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetView = e.target.getAttribute('data-target');
+                    navigateTo(targetView);
+                });
+            });
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    state.filter = e.target.getAttribute('data-filter');
+                    renderProjects(false);
+                });
+            });
+            searchInput.addEventListener('input', (e) => {
+                state.search = e.target.value;
+                renderProjects(false);
+            });
+        });
     </script>
 </body>
 </html>
