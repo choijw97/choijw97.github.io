@@ -1,0 +1,354 @@
+{
+  "translations": {
+    "ko": {
+      "close": "닫기",
+      "back": "뒤로",
+      "heroTitle1": "Design Researcher",
+      "heroTitle2": "Engineer",
+      "heroDesc": "추상적인 철학과 구체적인 구조 사이를 항해하며,<br>깊이와 정밀함을 갖춘 디지털 경험을 만듭니다.",
+      "sectionTitle": "Selected Works",
+      "filterAll": "전체",
+      "footerTouch": "문의하기",
+      "searchPlaceholder": "프로젝트 검색...",
+      "noProjects": "프로젝트가 없습니다.",
+      "detailComingSoon": "상세 내용 준비중입니다.",
+      "aboutBio": "저는 사용자의 경험을 깊이 있게 탐구하는 연구자이자, 그 연구를 실제 제품으로 구현하는 엔지니어입니다.<br><br>기술과 인문학의 교차점에서 의미 있는 질문을 던지고, 코드로 그 해답을 그립니다. 단순한 기능 구현을 넘어, 사용자의 인지 과정과 감각적인 경험을 설계하는 데 집중합니다.",
+      "aboutExperience": "경력",
+      "aboutEducation": "학력",
+      "aboutExhibitions": "전시",
+      "aboutActivities": "활동",
+      "aboutAwards": "수상",
+      "aboutSkills": "기술 및 도구",
+      "contactLabel": "프로젝트 문의",
+      "socialTitle": "소셜 미디어",
+      "locationTitle": "위치"
+    },
+    "en": {
+      "close": "Close",
+      "back": "Back",
+      "heroTitle1": "Design Researcher",
+      "heroTitle2": "Engineer",
+      "heroDesc": "Navigating between abstract philosophy and concrete structure.<br>Crafting digital experiences with depth and precision.",
+      "sectionTitle": "Selected Works",
+      "filterAll": "All",
+      "footerTouch": "Get in touch",
+      "searchPlaceholder": "Search projects...",
+      "noProjects": "No projects found.",
+      "detailComingSoon": "More details coming soon.",
+      "aboutBio": "I am a researcher exploring user experience in depth, and an engineer bringing those insights to life.<br><br>I ask meaningful questions at the intersection of technology and humanities, and draw answers with code. Beyond simple implementation, I focus on designing the cognitive process and sensory experience of the user.",
+      "aboutExperience": "Experience",
+      "aboutEducation": "Education",
+      "aboutExhibitions": "Exhibitions",
+      "aboutActivities": "Activities",
+      "aboutAwards": "Awards",
+      "aboutSkills": "Capabilities",
+      "contactLabel": "Say Hello",
+      "socialTitle": "Socials",
+      "locationTitle": "Location"
+    }
+  },
+  "projects": [
+    {
+      "id": 1,
+      "type": "Research",
+      "title": {
+        "ko": "디지털 침묵의 현상학",
+        "en": "The Phenomenology of Digital Silence"
+      },
+      "date": "2023.10",
+      "thumbnail": "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=800&q=80",
+      "tags": [
+        "UX Theory",
+        "Philosophy",
+        "Minimalism"
+      ],
+      "description": {
+        "ko": "디지털 인터페이스에서 발생하는 침묵의 현상학적 고찰과 UX 패턴 연구",
+        "en": "Phenomenological inquiry into silence in digital interfaces and UX pattern research."
+      },
+      "details": [
+        {
+          "type": "text",
+          "content": {
+            "ko": "현대 인터페이스 디자인에서 \"빈 공간(White Space)\"은 단순히 비어있는 곳이 아닙니다. 하이데거의 존재론적 논의를 바탕으로, 디지털 환경에서의 침묵이 사용자 경험에 미치는 심리적 영향을 분석했습니다.",
+            "en": "In modern interface design, \"White Space\" is not merely empty. Based on Heidegger's ontological discussion, we analyzed the psychological impact of silence in the digital environment on user experience."
+          }
+        },
+        {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1000&q=80",
+          "caption": "Figure 1. The visual representation of digital noise vs silence."
+        },
+        {
+          "type": "text",
+          "content": {
+            "ko": "로딩 스피너가 돌아가는 0.5초의 침묵, 전송 완료 후의 고요함, 그리고 알림이 울리지 않는 방해 금지 모드의 역설적인 불안감을 다룹니다. 이 연구는 침묵을 \"기능의 부재\"가 아닌 \"적극적인 인터랙션의 한 형태\"로 재정의합니다.",
+            "en": "It addresses the 0.5-second silence of a loading spinner, the stillness after transmission completion, and the paradoxical anxiety of Do Not Disturb mode. This research redefines silence not as the \"absence of function\" but as \"a form of active interaction.\""
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "Engineering",
+      "title": {
+        "ko": "키네틱 타이포그래피 엔진",
+        "en": "Kinetic Typography Engine"
+      },
+      "date": "2023.12",
+      "thumbnail": "https://media.giphy.com/media/l41lFj8af0LC05Tmo/giphy.gif",
+      "tags": [
+        "Vanilla JS",
+        "Performance",
+        "DOM Manipulation"
+      ],
+      "description": {
+        "ko": "WebGL 없이 DOM 조작만을 활용한 고성능 텍스트 애니메이션 라이브러리",
+        "en": "High-performance text animation library using only DOM manipulation without WebGL."
+      },
+      "details": [
+        {
+          "type": "text",
+          "content": {
+            "ko": "일반적으로 화려한 텍스트 효과는 Canvas나 WebGL을 사용해야 한다고 생각합니다. 하지만 이는 SEO에 불리하고 접근성을 해칠 수 있습니다. 이 프로젝트는 순수 DOM 요소만을 사용하여 복잡한 운동학적(Kinetic) 타이포그래피를 구현하는 경량 엔진입니다.",
+            "en": "Typically, fancy text effects imply Canvas or WebGL. However, this can harm SEO and accessibility. This project is a lightweight engine implementing complex kinetic typography using only pure DOM elements."
+          }
+        },
+        {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1000&q=80",
+          "caption": "Engine Architecture Diagram"
+        },
+        {
+          "type": "image",
+          "src": "https://media.giphy.com/media/l41lFj8af0LC05Tmo/giphy.gif",
+          "caption": "Real-time Kinetic Rendering Demo"
+        },
+        {
+          "type": "text",
+          "content": {
+            "ko": "requestAnimationFrame을 최적화하여 60fps를 유지하면서, 각 글자가 물리 엔진이 적용된 것처럼 유기적으로 반응하도록 설계했습니다. CSS Custom Properties를 JS로 실시간 제어하여 렌더링 오버헤드를 최소화했습니다.",
+            "en": "Designed to react organically as if a physics engine were applied to each letter, maintaining 60fps by optimizing requestAnimationFrame. Rendering overhead was minimized by controlling CSS Custom Properties in real-time with JS."
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "Research",
+      "title": {
+        "ko": "재귀 알고리즘의 윤리학",
+        "en": "Ethics of Recursive Algorithms"
+      },
+      "date": "2024.01",
+      "thumbnail": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80",
+      "tags": [
+        "AI Ethics",
+        "Simulation",
+        "Python"
+      ],
+      "description": {
+        "ko": "알고리즘의 재귀적 구조가 인간의 의사결정에 미치는 윤리적 영향 분석",
+        "en": "Analysis of the ethical impact of the recursive structure of algorithms on human decision-making."
+      },
+      "details": [
+        {
+          "type": "text",
+          "content": {
+            "ko": "추천 알고리즘은 본질적으로 재귀적입니다. 사용자의 과거 선택이 미래의 선택지를 좁히고, 그 선택이 다시 과거 데이터가 되어 더 좁은 선택지를 제시합니다.",
+            "en": "Recommendation algorithms are inherently recursive. Past choices narrow future options, which then become past data, narrowing options further."
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "Design",
+      "title": {
+        "ko": "모듈형 디자인 시스템 Void",
+        "en": "Modular Design System Void"
+      },
+      "date": "2024.03",
+      "thumbnail": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
+      "tags": [
+        "Design Systems",
+        "Headless UI",
+        "A11y"
+      ],
+      "description": {
+        "ko": "불필요한 스타일을 제거하고 구조적 기능에 집중한 React 기반 디자인 시스템",
+        "en": "React-based design system focusing on structural function, stripping away unnecessary styles."
+      },
+      "details": [
+        {
+          "type": "text",
+          "content": {
+            "ko": "대부분의 디자인 시스템은 \"어떻게 보이는가\"에 집중합니다. 하지만 \"Void\"는 \"어떻게 작동하는가\"에 집중합니다. Headless component 패턴을 차용하여 스타일을 강제하지 않고, 키보드 접근성(A11y)과 상태 관리 로직만을 제공합니다.",
+            "en": "Most design systems focus on \"how it looks.\" \"Void\" focuses on \"how it works.\" Adopting the Headless component pattern, it enforces no styles but provides keyboard accessibility (A11y) and state management logic."
+          }
+        },
+        {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=80",
+          "caption": "Component Structure"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "Engineering",
+      "title": {
+        "ko": "실시간 캔버스 최적화",
+        "en": "Real-time Canvas Optimizer"
+      },
+      "date": "2024.05",
+      "thumbnail": "https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&w=800&q=80",
+      "tags": [
+        "Data Viz",
+        "WebGL",
+        "Optimization"
+      ],
+      "description": {
+        "ko": "대규모 데이터 시각화를 위한 캔버스 렌더링 최적화 알고리즘",
+        "en": "Canvas rendering optimization algorithms for large-scale data visualization."
+      },
+      "details": [
+        {
+          "type": "text",
+          "content": {
+            "ko": "수만 개의 데이터 포인트를 60fps로 렌더링하기 위한 WebGL/Canvas 최적화 기법 시연 영상입니다. 오프스크린 캔버스와 워커 스레드를 활용하여 메인 스레드의 부하를 최소화했습니다.",
+            "en": "Demonstration of WebGL/Canvas optimization techniques for rendering tens of thousands of data points at 60fps. Utilized OffscreenCanvas and Worker threads to minimize main thread load."
+          }
+        },
+        {
+          "type": "video",
+          "src": "https://www.youtube.com/embed/KGJquM8D0Ks?si=Lz-Dk7X_x2x_x2x"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "Design",
+      "title": {
+        "ko": "마이크로 인터랙션 패턴",
+        "en": "Micro-interaction Patterns"
+      },
+      "date": "2024.06",
+      "thumbnail": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+      "tags": [
+        "Interaction Design",
+        "Motion",
+        "Prototyping"
+      ],
+      "description": {
+        "ko": "사용자 인지 부하를 최소화하는 모바일 인터랙션 패턴 모음집",
+        "en": "Collection of mobile interaction patterns minimizing user cognitive load."
+      },
+      "details": []
+    }
+  ],
+  "aboutData": {
+    "experience": [
+      {
+        "year": "2024",
+        "title": {
+          "ko": "프리랜서 디자인 엔지니어",
+          "en": "Freelance Design Engineer"
+        },
+        "sub": "Self-Employed"
+      },
+      {
+        "year": "2022",
+        "title": {
+          "ko": "시니어 프론트엔드 개발자",
+          "en": "Senior Frontend Developer"
+        },
+        "sub": "Tech Studio A"
+      },
+      {
+        "year": "2020",
+        "title": {
+          "ko": "UI/UX 디자이너",
+          "en": "UI/UX Designer"
+        },
+        "sub": "Creative Agency B"
+      }
+    ],
+    "education": [
+      {
+        "year": "2019",
+        "title": {
+          "ko": "산업디자인 석사",
+          "en": "M.S. Industrial Design"
+        },
+        "sub": "KAIST"
+      },
+      {
+        "year": "2017",
+        "title": {
+          "ko": "컴퓨터공학 학사",
+          "en": "B.S. Computer Science"
+        },
+        "sub": "Seoul National University"
+      }
+    ],
+    "exhibitions": [
+      {
+        "year": "2023",
+        "title": {
+          "ko": "디지털 노이즈 전",
+          "en": "Digital Noise Exhibition"
+        },
+        "sub": "Seoul Art Center"
+      },
+      {
+        "year": "2019",
+        "title": {
+          "ko": "미디어 아트 비엔날레",
+          "en": "Media Art Biennale"
+        },
+        "sub": "Gwangju"
+      }
+    ],
+    "activities": [
+      {
+        "year": "2021",
+        "title": {
+          "ko": "오픈소스 컨트리뷰터",
+          "en": "Open Source Contributor"
+        },
+        "sub": "React Core Team"
+      }
+    ],
+    "awards": [
+      {
+        "year": "2022",
+        "title": {
+          "ko": "레드닷 디자인 어워드",
+          "en": "Red Dot Design Award"
+        },
+        "sub": "Best of Best"
+      },
+      {
+        "year": "2020",
+        "title": {
+          "ko": "iF 디자인 어워드",
+          "en": "iF Design Award"
+        },
+        "sub": "Winner"
+      }
+    ],
+    "skills": [
+      "JavaScript (ES6+)",
+      "TypeScript",
+      "React",
+      "WebGL",
+      "Three.js",
+      "GLSL",
+      "Python",
+      "Node.js",
+      "Figma",
+      "Blender"
+    ]
+  }
+}

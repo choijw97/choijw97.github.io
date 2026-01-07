@@ -154,7 +154,7 @@
             color: var(--text-color);
             font-weight: 600;
         }
-        .lang-opt:hover {
+        .lang-opt.active:hover {
             color: var(--text-color);
         }
 
@@ -275,7 +275,12 @@
         .detail-back-btn:hover { color: var(--accent-color); }
         .detail-back-btn span:first-child { font-size: 1.2em; line-height: 1; }
 
-        #detail-content-wrapper { padding: 40px var(--padding-x) 100px; }
+        /* Detail Content Centering */
+        #detail-content-wrapper { 
+            padding: 100px 5vw 100px; /* Top padding increased for header */
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
 
         .d-header { margin-bottom: 60px; border-bottom: 1px solid var(--border-color); padding-bottom: 40px; }
         .d-meta { display: flex; gap: 20px; color: var(--accent-color); font-family: var(--font-sans); margin-bottom: 20px; font-size: 0.9rem; }
@@ -334,6 +339,7 @@
             margin-top: 40px;
             display: flex;
             gap: 24px;
+            flex-wrap: wrap; /* Added for multi-button layout */
         }
         .hero-nav-btn {
             font-family: var(--font-sans);
@@ -394,8 +400,9 @@
             column-gap: 40px; row-gap: 80px;
             transition: opacity 0.3s; min-height: 200px;
         }
-        .project-grid:hover .project-item { opacity: 0.3; }
-        .project-grid .project-item:hover { opacity: 1; transform: translateY(-10px); }
+        /* Only apply grid hover effect when it's actually a grid */
+        .project-grid:not(.list-mode):hover .project-item { opacity: 0.3; }
+        .project-grid:not(.list-mode) .project-item:hover { opacity: 1; transform: translateY(-10px); }
 
         .project-item {
             display: flex; flex-direction: column;
@@ -428,10 +435,59 @@
 
         /* Mobile specific Thumbnail in List */
         .p-mobile-thumb {
-            display: none; width: 100%; height: auto; margin-top: 20px; border-radius: 4px;
-            opacity: 0; transition: opacity 0.4s ease;
+            display: none; /* Hidden on Desktop */
         }
-        .project-item.mobile-active .p-mobile-thumb { display: block; opacity: 1; }
+        
+        /* --- Table View (Index Mode) --- */
+        .project-list-view {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .list-header, .list-row {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 3fr 2fr; /* Date, Type, Title, Tags */
+            gap: 20px;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .list-header {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--text-color); /* Thicker border for header */
+        }
+
+        .list-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            opacity: 0; /* Initial state for animation */
+        }
+
+        .list-row:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+
+        .list-row .col-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--text-color);
+            font-weight: 400;
+        }
+
+        .list-row .col-date,
+        .list-row .col-type,
+        .list-row .col-tags {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--accent-color);
+        }
 
         /* Floating Cursor Follower (PC) */
         #cursor-follower {
@@ -456,9 +512,14 @@
             object-fit: cover;
         }
 
-        /* --- About Section (CV Style) --- */
-        .about-container { max-width: 1000px; }
-        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 40px; }
+        /* --- About Section (CV Style) - 4 Column Layout --- */
+        .about-container { max-width: 1400px; margin: 80px auto; }
+        .about-grid { 
+            display: grid; 
+            grid-template-columns: 1.2fr 1fr 1fr 1fr; /* 4-Column: Bio | Exp | Edu+ | Skill+ */
+            gap: 30px; 
+            margin-top: 40px; 
+        }
         
         .about-bio-wrap { margin-bottom: 40px; }
         .about-bio { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.6; color: var(--text-color); }
@@ -501,6 +562,22 @@
             z-index: 10;
         }
 
+        /* --- Content Protection --- */
+        #work-section, #project-detail-view {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Exception for inputs so search still works */
+        input {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
         @media (max-width: 768px) {
             /* Mobile Header Optimization */
             header { padding: 0 5vw; }
@@ -540,13 +617,75 @@
 
             #detail-content-wrapper { padding: 30px 5vw 100px; }
             
+            /* About Grid Mobile Override (Stack vertically) */
             .about-grid { grid-template-columns: 1fr; gap: 40px; }
+            
             .resume-item { grid-template-columns: 80px 1fr; }
             .contact-email { font-size: 10vw; margin-bottom: 40px; }
             .contact-info-grid { grid-template-columns: 1fr; gap: 30px; }
             
             /* Disable floating cursor on mobile explicitly to save resources */
             #cursor-follower { display: none; }
+            
+            /* Scroll Focus Animation (Mobile Only) */
+            .p-mobile-thumb {
+                display: block; /* Override default hidden */
+                width: 100%;
+                height: auto;
+                object-fit: cover;
+                border-radius: 4px;
+                
+                /* Hidden State */
+                max-height: 0;
+                opacity: 0;
+                margin-top: 0;
+                filter: grayscale(100%);
+                
+                transition: all 0.8s var(--ease-cinematic);
+                will-change: max-height, opacity, margin-top, filter;
+            }
+            
+            /* Expanded State triggered by Observer */
+            .project-item.focused .p-mobile-thumb {
+                max-height: 400px;
+                opacity: 1;
+                margin-top: 24px;
+                filter: grayscale(0%);
+            }
+            
+            /* Table View Mobile Overrides */
+            .list-header, .list-row {
+                grid-template-columns: 70px 85px 1fr; /* Date, Type, Title */
+                gap: 10px;
+            }
+
+            .col-tags, .list-header .col-tags {
+                display: none; /* Keep Tags hidden */
+            }
+            
+            .col-type, .list-header .col-type {
+                display: block; /* Show Type */
+            }
+
+            /* Date & Type Styling */
+            .list-row .col-date, 
+            .list-row .col-type {
+                font-size: 0.7rem;
+                color: #888;
+            }
+
+            /* Type Overflow Protection */
+            .list-row .col-type {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .list-row .col-title {
+                font-size: 1rem;
+                white-space: normal; /* Allow wrapping for better UX on small screens */
+                line-height: 1.3;
+            }
         }
     </style>
 </head>
@@ -618,6 +757,7 @@
                     Crafting digital experiences with depth and precision.
                 </p>
                 <div class="hero-nav js-animate delay-2">
+                    <button class="hero-nav-btn" onclick="goToCategory('All')">Index ↘</button>
                     <button class="hero-nav-btn" onclick="goToCategory('Research')">Research ↗</button>
                     <button class="hero-nav-btn" onclick="goToCategory('Design')">Design ↗</button>
                     <button class="hero-nav-btn" onclick="goToCategory('Engineering')">Engineering ↗</button>
@@ -652,8 +792,8 @@
                 <h2 class="section-title">About Me</h2>
                 
                 <div class="about-grid">
-                    <!-- Left: Bio -->
-                    <div class="about-left">
+                    <!-- Column 1: Bio -->
+                    <div class="about-col" id="col-bio">
                          <div class="about-bio-wrap">
                             <p class="about-bio" data-t="aboutBio">
                                 <!-- Injected by JS -->
@@ -661,8 +801,18 @@
                         </div>
                     </div>
 
-                    <!-- Right: Resume & Skills (Dynamic) -->
-                    <div class="about-right" id="aboutRightCol">
+                    <!-- Column 2: Experience -->
+                    <div class="about-col" id="col-exp">
+                         <!-- Content injected by renderAbout() -->
+                    </div>
+                    
+                    <!-- Column 3: Education & Activities -->
+                    <div class="about-col" id="col-edu">
+                         <!-- Content injected by renderAbout() -->
+                    </div>
+
+                    <!-- Column 4: Skills & Awards -->
+                    <div class="about-col" id="col-skill">
                          <!-- Content injected by renderAbout() -->
                     </div>
                 </div>
@@ -702,228 +852,10 @@
     </footer>
 
     <script>
-        // --- 0. Translations ---
-        const translations = {
-            ko: {
-                close: '닫기',
-                back: '뒤로',
-                heroTitle1: 'Design Researcher',
-                heroTitle2: 'Engineer',
-                heroDesc: '추상적인 철학과 구체적인 구조 사이를 항해하며,<br>깊이와 정밀함을 갖춘 디지털 경험을 만듭니다.',
-                sectionTitle: 'Selected Works',
-                filterAll: '전체',
-                footerTouch: '문의하기',
-                searchPlaceholder: '프로젝트 검색...',
-                noProjects: '프로젝트가 없습니다.',
-                detailComingSoon: '상세 내용 준비중입니다.',
-                // About
-                aboutBio: '저는 사용자의 경험을 깊이 있게 탐구하는 연구자이자, 그 연구를 실제 제품으로 구현하는 엔지니어입니다.<br><br>기술과 인문학의 교차점에서 의미 있는 질문을 던지고, 코드로 그 해답을 그립니다. 단순한 기능 구현을 넘어, 사용자의 인지 과정과 감각적인 경험을 설계하는 데 집중합니다.',
-                aboutExperience: '경력',
-                aboutEducation: '학력',
-                aboutExhibitions: '전시',
-                aboutActivities: '활동',
-                aboutAwards: '수상',
-                aboutSkills: '기술 및 도구',
-                // Contact
-                contactLabel: '프로젝트 문의',
-                socialTitle: '소셜 미디어',
-                locationTitle: '위치'
-            },
-            en: {
-                close: 'Close',
-                back: 'Back',
-                heroTitle1: 'Design Researcher',
-                heroTitle2: 'Engineer',
-                heroDesc: 'Navigating between abstract philosophy and concrete structure.<br>Crafting digital experiences with depth and precision.',
-                sectionTitle: 'Selected Works',
-                filterAll: 'All',
-                footerTouch: 'Get in touch',
-                searchPlaceholder: 'Search projects...',
-                noProjects: 'No projects found.',
-                detailComingSoon: 'More details coming soon.',
-                // About
-                aboutBio: 'I am a researcher exploring user experience in depth, and an engineer bringing those insights to life.<br><br>I ask meaningful questions at the intersection of technology and humanities, and draw answers with code. Beyond simple implementation, I focus on designing the cognitive process and sensory experience of the user.',
-                aboutExperience: 'Experience',
-                aboutEducation: 'Education',
-                aboutExhibitions: 'Exhibitions',
-                aboutActivities: 'Activities',
-                aboutAwards: 'Awards',
-                aboutSkills: 'Capabilities',
-                // Contact
-                contactLabel: 'Say Hello',
-                socialTitle: 'Socials',
-                locationTitle: 'Location'
-            }
-        };
-
-        // --- 1. Data Source (i18n Applied & Thumbnail Added) ---
-        const projects = [
-            { 
-                id: 1, 
-                type: 'Research', 
-                title: {
-                    ko: '디지털 침묵의 현상학',
-                    en: 'The Phenomenology of Digital Silence'
-                },
-                date: '2023.10',
-                thumbnail: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=800&q=80',
-                tags: ['UX Theory', 'Philosophy', 'Minimalism'],
-                description: {
-                    ko: '디지털 인터페이스에서 발생하는 침묵의 현상학적 고찰과 UX 패턴 연구',
-                    en: 'Phenomenological inquiry into silence in digital interfaces and UX pattern research.'
-                },
-                details: [
-                    { type: 'text', content: {
-                        ko: '현대 인터페이스 디자인에서 "빈 공간(White Space)"은 단순히 비어있는 곳이 아닙니다. 하이데거의 존재론적 논의를 바탕으로, 디지털 환경에서의 침묵이 사용자 경험에 미치는 심리적 영향을 분석했습니다.',
-                        en: 'In modern interface design, "White Space" is not merely empty. Based on Heidegger\'s ontological discussion, we analyzed the psychological impact of silence in the digital environment on user experience.'
-                    }},
-                    { type: 'image', src: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1000&q=80', caption: 'Figure 1. The visual representation of digital noise vs silence.' },
-                    { type: 'text', content: {
-                        ko: '로딩 스피너가 돌아가는 0.5초의 침묵, 전송 완료 후의 고요함, 그리고 알림이 울리지 않는 방해 금지 모드의 역설적인 불안감을 다룹니다. 이 연구는 침묵을 "기능의 부재"가 아닌 "적극적인 인터랙션의 한 형태"로 재정의합니다.',
-                        en: 'It addresses the 0.5-second silence of a loading spinner, the stillness after transmission completion, and the paradoxical anxiety of Do Not Disturb mode. This research redefines silence not as the "absence of function" but as "a form of active interaction."'
-                    }}
-                ]
-            },
-            { 
-                id: 2, 
-                type: 'Engineering', 
-                title: {
-                    ko: '키네틱 타이포그래피 엔진',
-                    en: 'Kinetic Typography Engine'
-                },
-                date: '2023.12',
-                // Updated Thumbnail to GIF
-                thumbnail: 'https://media.giphy.com/media/l41lFj8af0LC05Tmo/giphy.gif',
-                tags: ['Vanilla JS', 'Performance', 'DOM Manipulation'],
-                description: {
-                    ko: 'WebGL 없이 DOM 조작만을 활용한 고성능 텍스트 애니메이션 라이브러리',
-                    en: 'High-performance text animation library using only DOM manipulation without WebGL.'
-                },
-                details: [
-                    { type: 'text', content: {
-                        ko: '일반적으로 화려한 텍스트 효과는 Canvas나 WebGL을 사용해야 한다고 생각합니다. 하지만 이는 SEO에 불리하고 접근성을 해칠 수 있습니다. 이 프로젝트는 순수 DOM 요소만을 사용하여 복잡한 운동학적(Kinetic) 타이포그래피를 구현하는 경량 엔진입니다.',
-                        en: 'Typically, fancy text effects imply Canvas or WebGL. However, this can harm SEO and accessibility. This project is a lightweight engine implementing complex kinetic typography using only pure DOM elements.'
-                    }},
-                    { type: 'image', src: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1000&q=80', caption: 'Engine Architecture Diagram' },
-                    // Added GIF Detail
-                    { type: 'image', src: 'https://media.giphy.com/media/l41lFj8af0LC05Tmo/giphy.gif', caption: 'Real-time Kinetic Rendering Demo' },
-                    { type: 'text', content: {
-                        ko: 'requestAnimationFrame을 최적화하여 60fps를 유지하면서, 각 글자가 물리 엔진이 적용된 것처럼 유기적으로 반응하도록 설계했습니다. CSS Custom Properties를 JS로 실시간 제어하여 렌더링 오버헤드를 최소화했습니다.',
-                        en: 'Designed to react organically as if a physics engine were applied to each letter, maintaining 60fps by optimizing requestAnimationFrame. Rendering overhead was minimized by controlling CSS Custom Properties in real-time with JS.'
-                    }}
-                ]
-            },
-            { 
-                id: 3, 
-                type: 'Research', 
-                title: {
-                    ko: '재귀 알고리즘의 윤리학',
-                    en: 'Ethics of Recursive Algorithms'
-                }, 
-                date: '2024.01',
-                thumbnail: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80',
-                tags: ['AI Ethics', 'Simulation', 'Python'],
-                description: {
-                    ko: '알고리즘의 재귀적 구조가 인간의 의사결정에 미치는 윤리적 영향 분석',
-                    en: 'Analysis of the ethical impact of the recursive structure of algorithms on human decision-making.'
-                },
-                details: [
-                     { type: 'text', content: {
-                         ko: '추천 알고리즘은 본질적으로 재귀적입니다. 사용자의 과거 선택이 미래의 선택지를 좁히고, 그 선택이 다시 과거 데이터가 되어 더 좁은 선택지를 제시합니다.',
-                         en: 'Recommendation algorithms are inherently recursive. Past choices narrow future options, which then become past data, narrowing options further.'
-                     }}
-                ]
-            },
-            { 
-                id: 4, 
-                type: 'Design', 
-                title: {
-                    ko: '모듈형 디자인 시스템 Void',
-                    en: 'Modular Design System Void'
-                }, 
-                date: '2024.03',
-                thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-                tags: ['Design Systems', 'Headless UI', 'A11y'],
-                description: {
-                    ko: '불필요한 스타일을 제거하고 구조적 기능에 집중한 React 기반 디자인 시스템',
-                    en: 'React-based design system focusing on structural function, stripping away unnecessary styles.'
-                },
-                details: [
-                    { type: 'text', content: {
-                        ko: '대부분의 디자인 시스템은 "어떻게 보이는가"에 집중합니다. 하지만 "Void"는 "어떻게 작동하는가"에 집중합니다. Headless component 패턴을 차용하여 스타일을 강제하지 않고, 키보드 접근성(A11y)과 상태 관리 로직만을 제공합니다.',
-                        en: 'Most design systems focus on "how it looks." "Void" focuses on "how it works." Adopting the Headless component pattern, it enforces no styles but provides keyboard accessibility (A11y) and state management logic.'
-                    }},
-                    { type: 'image', src: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=80', caption: 'Component Structure' }
-                ]
-            },
-            { 
-                id: 5, 
-                type: 'Engineering', 
-                title: {
-                    ko: '실시간 캔버스 최적화',
-                    en: 'Real-time Canvas Optimizer'
-                }, 
-                date: '2024.05', 
-                thumbnail: 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&w=800&q=80',
-                tags: ['Data Viz', 'WebGL', 'Optimization'],
-                description: {
-                    ko: '대규모 데이터 시각화를 위한 캔버스 렌더링 최적화 알고리즘',
-                    en: 'Canvas rendering optimization algorithms for large-scale data visualization.'
-                }, 
-                details: [
-                    { type: 'text', content: {
-                         ko: '수만 개의 데이터 포인트를 60fps로 렌더링하기 위한 WebGL/Canvas 최적화 기법 시연 영상입니다. 오프스크린 캔버스와 워커 스레드를 활용하여 메인 스레드의 부하를 최소화했습니다.',
-                         en: 'Demonstration of WebGL/Canvas optimization techniques for rendering tens of thousands of data points at 60fps. Utilized OffscreenCanvas and Worker threads to minimize main thread load.'
-                     }},
-                     // Added Youtube Embed Video
-                     { type: 'video', src: 'https://www.youtube.com/embed/KGJquM8D0Ks?si=Lz-Dk7X_x2x_x2x' } 
-                ] 
-            },
-            { 
-                id: 6, 
-                type: 'Design', 
-                title: {
-                    ko: '마이크로 인터랙션 패턴',
-                    en: 'Micro-interaction Patterns'
-                }, 
-                date: '2024.06', 
-                thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-                tags: ['Interaction Design', 'Motion', 'Prototyping'],
-                description: {
-                    ko: '사용자 인지 부하를 최소화하는 모바일 인터랙션 패턴 모음집',
-                    en: 'Collection of mobile interaction patterns minimizing user cognitive load.'
-                }, 
-                details: [] 
-            }
-        ];
-
-        // About Data (Unified Structure)
-        const aboutData = {
-            experience: [
-                { year: '2024', title: { ko: '프리랜서 디자인 엔지니어', en: 'Freelance Design Engineer' }, sub: 'Self-Employed' },
-                { year: '2022', title: { ko: '시니어 프론트엔드 개발자', en: 'Senior Frontend Developer' }, sub: 'Tech Studio A' },
-                { year: '2020', title: { ko: 'UI/UX 디자이너', en: 'UI/UX Designer' }, sub: 'Creative Agency B' }
-            ],
-            education: [
-                { year: '2019', title: { ko: '산업디자인 석사', en: 'M.S. Industrial Design' }, sub: 'KAIST' },
-                { year: '2017', title: { ko: '컴퓨터공학 학사', en: 'B.S. Computer Science' }, sub: 'Seoul National University' }
-            ],
-            exhibitions: [
-                { year: '2023', title: { ko: '디지털 노이즈 전', en: 'Digital Noise Exhibition' }, sub: 'Seoul Art Center' },
-                { year: '2019', title: { ko: '미디어 아트 비엔날레', en: 'Media Art Biennale' }, sub: 'Gwangju' }
-            ],
-            activities: [
-                { year: '2021', title: { ko: '오픈소스 컨트리뷰터', en: 'Open Source Contributor' }, sub: 'React Core Team' }
-            ],
-            awards: [
-                { year: '2022', title: { ko: '레드닷 디자인 어워드', en: 'Red Dot Design Award' }, sub: 'Best of Best' },
-                { year: '2020', title: { ko: 'iF 디자인 어워드', en: 'iF Design Award' }, sub: 'Winner' }
-            ],
-            skills: [
-                'JavaScript (ES6+)', 'TypeScript', 'React', 'WebGL', 'Three.js', 
-                'GLSL', 'Python', 'Node.js', 'Figma', 'Blender'
-            ]
-        };
+        // --- Global Variables (Loaded via fetch) ---
+        let translations = {};
+        let projects = [];
+        let aboutData = {};
 
         // --- 2. State & DOM Elements ---
         let state = { filter: 'All', search: '', lang: 'ko', view: 'home-section' };
@@ -941,23 +873,27 @@
         const menuLinks = document.querySelectorAll('.menu-link');
         const spaViews = document.querySelectorAll('.spa-view');
         const logoBtn = document.getElementById('logoBtn');
-        // Removed explicit resumeList and skillList variables as they are now dynamic
         
         // Floating Cursor Elements
         const cursorFollower = document.getElementById('cursor-follower');
         const cursorFollowerImg = cursorFollower.querySelector('img');
+        
+        // Mobile Observer
+        let mobileObserver;
 
         // Helper: Get Translation
-        const t = (key) => translations[state.lang][key] || key;
+        const t = (key) => {
+            if (!translations[state.lang]) return key;
+            return translations[state.lang][key] || key;
+        };
 
         // --- 3. Update UI Language ---
         function updateUI() {
             // Update Static Texts with data-t attribute
             document.querySelectorAll('[data-t]').forEach(el => {
                 const key = el.getAttribute('data-t');
-                if (translations[state.lang][key]) {
-                    el.innerHTML = translations[state.lang][key];
-                }
+                const text = t(key);
+                if (text) el.innerHTML = text;
             });
 
             // Update Placeholders
@@ -991,7 +927,42 @@
             }
         }
 
-        // --- 4. Intro Loader Logic ---
+        // --- 4. Intro Loader & Data Fetch Logic ---
+        async function initData() {
+            try {
+                const response = await fetch('data.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                
+                translations = data.translations;
+                projects = data.projects;
+                aboutData = data.aboutData;
+                
+                // Data loaded successfully
+                // 1. Initialize State
+                const storedLang = sessionStorage.getItem('lang');
+                if (storedLang) state.lang = storedLang;
+
+                // 2. Render UI (Hidden initially)
+                updateUI();
+                
+                // 3. Handle Deep Linking (Project Details) - MUST be done after data load
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('project');
+                if (projectId) {
+                     openDetailView(projectId);
+                }
+
+                // 4. Handle Loader Removal
+                runIntro();
+
+            } catch (error) {
+                console.error("Failed to load data:", error);
+                // Fallback or Error Message
+                if (loader) loader.innerHTML = '<div style="color:black; z-index:99999; position:relative;">Error loading content. Please refresh.</div>';
+            }
+        }
+
         function runIntro() {
             const hasVisited = sessionStorage.getItem('hasVisited');
 
@@ -999,6 +970,7 @@
                 loader.style.display = 'none';
                 startAppAnimations();
             } else {
+                // Keep the visual timing of the intro
                 setTimeout(() => {
                     loader.classList.add('hidden');
                     setTimeout(() => {
@@ -1012,8 +984,7 @@
         function startAppAnimations() {
             const targets = document.querySelectorAll('.js-animate');
             targets.forEach(el => el.classList.add('animate-init'));
-            renderProjects(true);
-            renderAbout();
+            // Re-rendering animations if needed, though updateUI handled content
         }
 
         // --- 5. Navigation & SPA Logic ---
@@ -1152,10 +1123,34 @@
                  document.body.style.overflow = '';
              }
         });
+        
+        // --- 6.5. Initialize Mobile Observer ---
+        function initMobileObserver() {
+            // Options: center 20% of viewport triggers the focus
+            const options = {
+                root: null,
+                rootMargin: '-40% 0px -40% 0px',
+                threshold: 0
+            };
 
-        // --- 7. Render Functions ---
+            mobileObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('focused');
+                    } else {
+                        entry.target.classList.remove('focused');
+                    }
+                });
+            }, options);
+        }
+
+        // --- 7. Render Projects (UPDATED: Supports Table View for 'All' Filter) ---
         function renderProjects(isInitial = false) {
             gridContainer.innerHTML = '';
+            
+            // Disconnect old observer
+            if (mobileObserver) mobileObserver.disconnect();
+            
             const filtered = projects.filter(p => {
                 const matchType = state.filter === 'All' || p.type === state.filter;
                 const searchLower = state.search.toLowerCase();
@@ -1176,81 +1171,142 @@
                 return;
             }
 
-            filtered.forEach((project, index) => {
-                const article = document.createElement('article');
-                article.className = 'project-item';
-                // Add thumbnail data attribute for PC Hover
-                article.dataset.thumbnail = project.thumbnail;
-                
-                const baseDelay = isInitial ? 0 : 0; 
-                article.style.animation = `cinematicFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards`;
-                article.style.animationDelay = `${baseDelay + (index * 0.1)}s`;
+            // === A. List View (Table) for 'All' Filter ===
+            if (state.filter === 'All') {
+                gridContainer.classList.remove('project-grid');
+                gridContainer.classList.add('list-mode');
 
-                const tagsHTML = project.tags 
-                    ? project.tags.map(tag => `<span class="p-tag">#${tag}</span>`).join('') 
-                    : '';
+                const listView = document.createElement('div');
+                listView.className = 'project-list-view';
 
-                article.innerHTML = `
-                    <div class="p-meta"><span>${project.type}</span><span>${project.date}</span></div>
-                    <h3 class="p-title">${project.title[state.lang]}</h3>
-                    <div class="p-tags">${tagsHTML}</div>
-                    <p class="p-desc">${project.description[state.lang]}</p>
-                    <img src="${project.thumbnail}" class="p-mobile-thumb" alt="Thumbnail">
+                // Create Header
+                const header = document.createElement('div');
+                header.className = 'list-header';
+                header.innerHTML = `
+                    <span class="col-date">Date</span>
+                    <span class="col-type">Type</span>
+                    <span class="col-title">Title</span>
+                    <span class="col-tags">Tags</span>
                 `;
-                
-                // Interaction Logic (Unified)
-                // 1. Mouse Enter/Leave for PC Floating Image
-                article.addEventListener('mouseenter', () => {
-                    // Only for fine pointers (Mouse)
-                    if (window.matchMedia('(hover: hover)').matches) {
-                        cursorFollowerImg.src = project.thumbnail;
-                        cursorFollower.classList.add('active');
-                    }
-                });
-                
-                article.addEventListener('mouseleave', () => {
-                    cursorFollower.classList.remove('active');
-                });
-                
-                // 2. Click Logic for Touch vs Mouse
-                article.addEventListener('click', (e) => {
-                    const isTouch = window.matchMedia('(hover: none)').matches;
+                listView.appendChild(header);
+
+                // Create Rows
+                filtered.forEach((project, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
                     
-                    if (isTouch) {
-                        // Mobile: 1st tap reveals, 2nd tap enters
-                        if (article.classList.contains('mobile-active')) {
-                            openDetailView(project.id);
-                        } else {
-                            // Reset others
-                            document.querySelectorAll('.project-item').forEach(el => el.classList.remove('mobile-active'));
-                            article.classList.add('mobile-active');
+                    row.style.animation = `cinematicFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards`;
+                    row.style.animationDelay = `${index * 0.05}s`; // Faster stagger for list
+                    
+                    const tagsStr = project.tags ? project.tags.slice(0, 3).join(', ') : '';
+
+                    row.innerHTML = `
+                        <span class="col-date">${project.date}</span>
+                        <span class="col-type">${project.type}</span>
+                        <span class="col-title">${project.title[state.lang]}</span>
+                        <span class="col-tags">${tagsStr}</span>
+                    `;
+
+                    row.addEventListener('click', () => openDetailView(project.id));
+                    
+                    // Hover Effect (Desktop Only)
+                    row.addEventListener('mouseenter', () => {
+                        if (window.matchMedia('(hover: hover)').matches) {
+                            cursorFollowerImg.src = project.thumbnail;
+                            cursorFollower.classList.add('active');
                         }
-                    } else {
-                        // PC: Direct Enter
-                        openDetailView(project.id);
-                    }
+                    });
+                    row.addEventListener('mouseleave', () => {
+                        cursorFollower.classList.remove('active');
+                    });
+
+                    listView.appendChild(row);
                 });
-                
-                gridContainer.appendChild(article);
-            });
+
+                gridContainer.appendChild(listView);
+            
+            // === B. Grid View (Cards) for specific filters ===
+            } else {
+                gridContainer.classList.add('project-grid');
+                gridContainer.classList.remove('list-mode');
+
+                filtered.forEach((project, index) => {
+                    const article = document.createElement('article');
+                    article.className = 'project-item';
+                    
+                    // Add thumbnail for hover effect (handled by dataset in original logic, but event listeners below work better)
+                    const baseDelay = isInitial ? 0 : 0; 
+                    article.style.animation = `cinematicFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards`;
+                    article.style.animationDelay = `${baseDelay + (index * 0.1)}s`;
+
+                    const tagsHTML = project.tags 
+                        ? project.tags.map(tag => `<span class="p-tag">#${tag}</span>`).join('') 
+                        : '';
+
+                    article.innerHTML = `
+                        <div class="p-meta"><span>${project.type}</span><span>${project.date}</span></div>
+                        <h3 class="p-title">${project.title[state.lang]}</h3>
+                        <div class="p-tags">${tagsHTML}</div>
+                        <p class="p-desc">${project.description[state.lang]}</p>
+                        <img src="${project.thumbnail}" class="p-mobile-thumb" alt="Thumbnail">
+                    `;
+                    
+                    // Interaction
+                    article.addEventListener('mouseenter', () => {
+                        if (window.matchMedia('(hover: hover)').matches) {
+                            cursorFollowerImg.src = project.thumbnail;
+                            cursorFollower.classList.add('active');
+                        }
+                    });
+                    
+                    article.addEventListener('mouseleave', () => {
+                        cursorFollower.classList.remove('active');
+                    });
+                    
+                    article.addEventListener('click', () => openDetailView(project.id));
+                    
+                    // Attach Mobile Observer (Only needed for cards)
+                    if (mobileObserver) mobileObserver.observe(article);
+                    
+                    gridContainer.appendChild(article);
+                });
+            }
         }
 
         function renderAbout() {
-            const container = document.getElementById('aboutRightCol');
-            container.innerHTML = ''; // Clear existing content
+            // Updated to 4 Columns split logic
+            const colExp = document.getElementById('col-exp');
+            const colEdu = document.getElementById('col-edu');
+            const colSkill = document.getElementById('col-skill');
+            
+            if (!colExp || !colEdu || !colSkill) return;
 
-            const sections = [
-                { key: 'experience', tKey: 'aboutExperience' },
+            colExp.innerHTML = ''; 
+            colEdu.innerHTML = '';
+            colSkill.innerHTML = '';
+
+            // 1. Experience Column
+            const expKeys = [
+                { key: 'experience', tKey: 'aboutExperience' }
+            ];
+            
+            // 2. Education & Activities Column
+            const eduKeys = [
                 { key: 'education', tKey: 'aboutEducation' },
                 { key: 'exhibitions', tKey: 'aboutExhibitions' },
-                { key: 'activities', tKey: 'aboutActivities' },
+                { key: 'activities', tKey: 'aboutActivities' }
+            ];
+
+            // 3. Skills & Awards Column
+            const skillKeys = [
                 { key: 'awards', tKey: 'aboutAwards' },
                 { key: 'skills', tKey: 'aboutSkills' }
             ];
 
-            sections.forEach(sec => {
+            // Helper to create a section element
+            const createSection = (sec) => {
                 const data = aboutData[sec.key];
-                if (!data || data.length === 0) return;
+                if (!data || data.length === 0) return null;
 
                 const sectionDiv = document.createElement('div');
                 sectionDiv.className = 'resume-section';
@@ -1287,8 +1343,25 @@
                     });
                     sectionDiv.appendChild(listDiv);
                 }
+                return sectionDiv;
+            };
 
-                container.appendChild(sectionDiv);
+            // Render Experience
+            expKeys.forEach(sec => {
+                const el = createSection(sec);
+                if (el) colExp.appendChild(el);
+            });
+            
+            // Render Education & Activities
+            eduKeys.forEach(sec => {
+                const el = createSection(sec);
+                if (el) colEdu.appendChild(el);
+            });
+
+            // Render Skills & Awards
+            skillKeys.forEach(sec => {
+                const el = createSection(sec);
+                if (el) colSkill.appendChild(el);
             });
         }
 
@@ -1296,33 +1369,66 @@
         
         // Mouse Move for Cursor Follower
         document.addEventListener('mousemove', (e) => {
-            // Simple follow logic
             cursorFollower.style.left = e.clientX + 'px';
             cursorFollower.style.top = e.clientY + 'px';
         });
 
-        // Context Menu Control (Protect Works)
+        // Helper: Check if protection is needed
+        function isProtected(target) {
+            // Check if target is inside protected areas
+            const inWork = target.closest('#work-section');
+            const inDetail = target.closest('#project-detail-view');
+            
+            // Allow inputs (Search bar)
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return false;
+
+            return inWork || inDetail;
+        }
+
+        // 1. Prevent Right Click
         document.addEventListener('contextmenu', (e) => {
-            // Disable right-click only in Work section and Detail view
-            if (e.target.closest('#work-section') || e.target.closest('#project-detail-view')) {
+            if (isProtected(e.target)) {
                 e.preventDefault();
+            }
+        });
+
+        // 2. Prevent Copy / Cut / Drag Select
+        ['copy', 'cut', 'selectstart'].forEach(event => {
+            document.addEventListener(event, (e) => {
+                if (isProtected(e.target)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // 3. Prevent Keyboard Shortcuts (Ctrl+C, Ctrl+A)
+        document.addEventListener('keydown', (e) => {
+            // Allow if focus is on input
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+            const isCtrl = e.ctrlKey || e.metaKey; // Windows Ctrl or Mac Cmd
+            if (isCtrl) {
+                const key = e.key.toLowerCase();
+                // Check if we are in a protected view state
+                const detailActive = detailView.classList.contains('active');
+                const workActive = state.view === 'work-section';
+
+                // If Detail View is open OR Work Section is active (and menu closed)
+                if ((detailActive || workActive) && (key === 'c' || key === 'a')) {
+                    e.preventDefault();
+                }
             }
         });
 
         // Initialization
         document.addEventListener('DOMContentLoaded', () => {
-            const storedLang = sessionStorage.getItem('lang');
-            if (storedLang) state.lang = storedLang;
-            updateUI(); 
-
-            runIntro();
+            initMobileObserver();
+            
+            // Initialize Data and then App
+            initData();
+            
+            // Set initial view immediately (content will be empty until data loads, but structure is there)
             navigateTo('home-section');
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const projectId = urlParams.get('project');
-            if (projectId) {
-                 openDetailView(projectId);
-            }
 
             langOpts.forEach(opt => {
                 opt.addEventListener('click', (e) => {
@@ -1367,5 +1473,3 @@
             });
         });
     </script>
-</body>
-</html>
